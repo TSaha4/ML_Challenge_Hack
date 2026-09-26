@@ -7,11 +7,15 @@ identifies a target record and its source.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import polars as pl
 
 TARGET_BASE = 10_000_000_000
+
+#: dataset root (contains train/ and test/); override with the ER_DATA_DIR env var
+DATA_DIR = Path(os.environ.get("ER_DATA_DIR", "student_resource/dataset"))
 
 
 def read_source(path: str | Path) -> pl.DataFrame:

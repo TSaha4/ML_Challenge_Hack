@@ -1,6 +1,6 @@
 """Step 3: featurise (GPU), train XGBoost (GPU) and tune the macro-F0.5 threshold.
 
-    python -m scripts.er_train [--n-train 500000]
+    python -m src.er.steps.train [--n-train 500000]
 
 Validation Source-1 entities are ``s1 % 100 == 0`` (a subset of the fold held out
 from transliteration learning).  Every target that has one of them among its
@@ -35,17 +35,20 @@ def main(argv=None) -> None:
     ap.add_argument("--chunk-targets", type=int, default=100_000)
     ap.add_argument("--model-dir", default=str(ART / "model"))
     ap.add_argument("--reuse-features", action="store_true")
+    ap.add_argument("--train-files", type=int, default=None,
+                    help="use only the first N training feature files (100k targets each)")
+    ap.add_argument("--max-bin", type=int, default=128)
     args = ap.parse_args(argv)
     lower_priority()
     import xgboost as xgb
     from src.er import model as M
     from src.er.gpu_features import FEATURES, GpuFeaturizer
-    from src.er.io import load_ground_truth
+    from src.er.io import DATA_DIR, load_ground_truth
 
     t0 = time.time()
     log = lambda m: print(f"[{time.time() - t0:6.0f}s rss {rss_gb():.1f}GB] {m}", flush=True)
 
-    gt = load_ground_truth("student_resource/dataset")
+    gt = load_ground_truth(DATA_DIR)
     s1 = pl.read_parquet(ART / "train_s1.parquet")
     stats = pl.read_parquet(ART / "train_s1stats.parquet")
     cands = pl.scan_parquet(ART / "train_cands" / "part-*.parquet")
@@ -104,10 +107,11 @@ def main(argv=None) -> None:
         def reset(self):
             self.i = 0
 
-    dtr = xgb.QuantileDMatrix(ParquetIter(sorted((fdir / "train").glob("*.parquet"))), max_bin=256)
-    des = xgb.QuantileDMatrix(ParquetIter(sorted((fdir / "es").glob("*.parquet"))), ref=dtr)
+    train_files = sorted((fdir / "train").glob("*.parquet"))[: args.train_files]
+    dtr = xgb.QuantileDMatrix(ParquetIter(train_files), max_bin=args.max_bin)
+    des = xgb.QuantileDMatrix(ParquetIter(sorted((fdir / "es").glob("*.parquet"))), ref=dtr, max_bin=args.max_bin)
     log(f"train rows {dtr.num_row():,}  es rows {des.num_row():,}")
-    booster = xgb.train(M.XGB_PARAMS, dtr, 2000, evals=[(dtr, "train"), (des, "es")],
+    booster = xgb.train({**M.XGB_PARAMS, "max_bin": args.max_bin}, dtr, 2000, evals=[(dtr, "train"), (des, "es")],
                         early_stopping_rounds=60, verbose_eval=100)
     del dtr, des
     log(f"trained on GPU: best iteration {booster.best_iteration}")

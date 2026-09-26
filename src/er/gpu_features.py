@@ -36,7 +36,7 @@ _BASE = 1_000_003
 FIELD_LEN = {"nm": 64, "core": 56, "sq": 48, "ad": 112, "nm_pre": 40}
 TOKENS = {"core": 12, "ad": 24}
 
-BLOCK_FEATURES = ["sn", "sa", "nk", "rk", "score", "score_top", "score_rel", "score_gap",
+BLOCK_FEATURES = ["sn", "sa", "nk", "rk", "qs", "rq", "score", "score_top", "score_rel", "score_gap",
                   "n_cand", "s1_top_cnt", "s1_cand_cnt"]
 GRAM_FEATURES = [f"{f}_{q}_{m}" for f in ("nm", "core", "sq", "ad") for q in ("g2", "g3")
                  for m in ("jac", "cin", "cout")] + ["pre_core_g3_cin"]
@@ -45,7 +45,9 @@ TOKEN_FEATURES = ["core_tok_jac", "core_tok_wjac", "core_tok_wcov_t", "core_tok_
                   "num_jac", "num_first_eq", "num_missing", "ntok_t", "ntok_s", "ad_ntok_t", "ad_ntok_s"]
 CPU_FEATURES = ["rf_nm_ratio", "rf_core_tset", "rf_ad_tset"]
 FLAG_FEATURES = ["src", "n_alias", "n_domain", "n_indic", "ad_null", "ad_null_s",
-                 "len_nm_t", "len_nm_s", "len_ad_t", "len_ad_s"]
+                 "len_nm_t", "len_nm_s", "len_ad_t", "len_ad_s",
+                 # name rarity: how many Source-1 records carry exactly this core name
+                 "core_freq_s", "core_freq_t", "core_eq", "sq_eq"]
 FEATURES = BLOCK_FEATURES + GRAM_FEATURES + TOKEN_FEATURES + CPU_FEATURES + FLAG_FEATURES
 
 
@@ -184,12 +186,16 @@ def token_overlap(ha, hb, idf: Optional[TokenIdf]):
 class GpuFeaturizer:
     """Holds Source-1 text + corpus IDF tables; featurises candidate chunks."""
 
-    T_COLS = ["id", "nm", "core", "sq", "nm_pre", "ad", "ad_nums", "ad_num",
+    T_COLS = ["id", "cty", "nm", "core", "sq", "nm_pre", "ad", "ad_nums", "ad_num",
               "src", "n_alias", "n_domain", "n_indic", "ad_null"]
     S_COLS = ["id", "nm", "core", "sq", "ad", "ad_num", "ad_null"]
 
     def __init__(self, s1: pl.DataFrame, stats: pl.DataFrame):
-        self.s1 = s1.select(self.S_COLS)
+        self.freq = s1.group_by("cty", "core").agg(pl.len().cast(pl.Int32).alias("core_freq"))
+        self.s1 = (s1.select(*self.S_COLS, "cty")
+                   .join(self.freq, on=["cty", "core"], how="left")
+                   .rename({"core_freq": "core_freq_s"}).drop("cty"))
+        self.S_COLS = self.S_COLS + ["core_freq_s"]
         self.stats = stats
         self.idf_core = TokenIdf(s1["core"], FIELD_LEN["core"], TOKENS["core"])
         self.idf_ad = TokenIdf(s1["ad"], FIELD_LEN["ad"], TOKENS["ad"])
@@ -197,9 +203,11 @@ class GpuFeaturizer:
     def featurize(self, cands: pl.DataFrame, tg: pl.DataFrame, gpu_chunk: int = 250_000) -> pl.DataFrame:
         """``cands`` must contain all candidates of each of its targets."""
         c = add_context(cands, self.stats)
-        df = (c.join(tg.select(self.T_COLS).rename({"id": "tid"}), on="tid", how="left")
-              .join(self.s1.rename({k: f"{k}_s" for k in self.S_COLS if k != "id"}).rename({"id": "s1"}),
-                    on="s1", how="left"))
+        tgt = (tg.select(self.T_COLS).join(self.freq, on=["cty", "core"], how="left")
+               .with_columns(pl.col("core_freq").fill_null(0).alias("core_freq_t")).drop("core_freq", "cty"))
+        ren = {k: f"{k}_s" for k in self.S_COLS if k not in ("id", "core_freq_s")}
+        df = (c.join(tgt.rename({"id": "tid"}), on="tid", how="left")
+              .join(self.s1.rename(ren).rename({"id": "s1"}), on="s1", how="left"))
         outs = [self._chunk(df.slice(i, gpu_chunk)) for i in range(0, df.height, gpu_chunk)]
         return pl.concat(outs)
 
@@ -251,5 +259,8 @@ class GpuFeaturizer:
             "tid", "s1", *BLOCK_FEATURES, "src", "n_alias", "n_domain", "n_indic", "ad_null", "ad_null_s",
             ((pl.col("ad_num") == pl.col("ad_num_s")) & (pl.col("ad_num") != "")).cast(pl.Int8).alias("num_first_eq"),
             ((pl.col("ad_num") == "") | (pl.col("ad_num_s") == "")).cast(pl.Int8).alias("num_missing"),
+            "core_freq_s", "core_freq_t",
+            (pl.col("core") == pl.col("core_s")).cast(pl.Int8).alias("core_eq"),
+            (pl.col("sq") == pl.col("sq_s")).cast(pl.Int8).alias("sq_eq"),
         )
         return out.with_columns([pl.Series(k, v) for k, v in f.items()]).select("tid", "s1", *FEATURES)

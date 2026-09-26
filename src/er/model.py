@@ -50,6 +50,37 @@ def assign(scored: pl.DataFrame, threshold: float) -> pl.DataFrame:
     return best.filter(pl.col("p") >= threshold).select("tid", "s1", "p")
 
 
+def assign_supported(scored: pl.DataFrame, thr: float, thr_support: float,
+                     conf: float = 0.95) -> pl.DataFrame:
+    """Argmax assignment with sibling support.
+
+    A target is kept when ``p >= thr``, or when ``p >= thr_support`` and its
+    Source-1 entity already has at least one *other* target assigned with
+    ``p >= conf`` (records of the same business corroborate each other).
+    """
+    best = scored.sort("p", descending=True).unique("tid", keep="first").select("tid", "s1", "p")
+    conf_cnt = best.group_by("s1").agg((pl.col("p") >= conf).sum().alias("_nconf"))
+    best = best.join(conf_cnt, on="s1", how="left").with_columns(
+        (pl.col("_nconf") - (pl.col("p") >= conf).cast(pl.UInt32)).alias("_others"))
+    keep = (pl.col("p") >= thr) | ((pl.col("p") >= thr_support) & (pl.col("_others") >= 1))
+    return best.filter(keep).select("tid", "s1", "p")
+
+
+def tune_supported(scored: pl.DataFrame, truth: pl.DataFrame, universe: pl.Series,
+                   thr_grid=None, sup_grid=None, conf: float = 0.95):
+    """Grid-search ``(thr, thr_support)`` for :func:`assign_supported` on macro F0.5."""
+    thr_grid = list(thr_grid or np.round(np.arange(0.60, 0.925, 0.025), 3))
+    sup_grid = list(sup_grid or np.round(np.arange(0.05, 0.80, 0.05), 3))
+    rows = []
+    for t in thr_grid:
+        for s in sup_grid:
+            if s > t:
+                continue
+            m = macro_f05(assign_supported(scored, t, s, conf), truth, universe)
+            rows.append({**m, "threshold": float(t), "thr_support": float(s)})
+    return max(rows, key=lambda r: r["macro_f05"]), rows
+
+
 def macro_f05(pred: pl.DataFrame, truth: pl.DataFrame, universe: pl.Series, beta: float = 0.5) -> Dict[str, float]:
     """Official macro F_beta over ``universe`` Source-1 ids (singletons included).
 

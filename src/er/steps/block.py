@@ -1,9 +1,9 @@
 """Step 2: GPU candidate generation for a split.
 
-    python -m scripts.er_block --split train
-    python -m scripts.er_block --split test
+    python -m src.er.steps.block --split train
+    python -m src.er.steps.block --split test
 
-Writes ``artifacts/er/{split}_cands/part-NNN.parquet`` (tid, s1, sn, sa, nk, rk),
+Writes ``artifacts/er/{split}_cands/part-NNN.parquet`` (tid, s1, sn, sa, nk, rk, qs, rq),
 one part per 1M targets in file order, plus ``{split}_s1stats.parquet``.
 Targets are streamed from parquet, so RAM stays ~2-3 GB; the index lives in VRAM.
 """
@@ -27,7 +27,9 @@ def main(argv=None) -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--split", choices=["train", "test"], required=True)
     ap.add_argument("--cap", type=int, default=500)
-    ap.add_argument("--k", type=int, default=10)
+    ap.add_argument("--k", type=int, default=10, help="keep IDF top-k")
+    ap.add_argument("--k-wide", type=int, default=200, help="IDF top-k re-ranked by char similarity")
+    ap.add_argument("--k-char", type=int, default=6, help="also keep char-similarity top-k")
     args = ap.parse_args(argv)
     lower_priority()
     from src.er.features import s1_stats
@@ -48,7 +50,7 @@ def main(argv=None) -> None:
     for i, start in enumerate(range(0, n_tg, PART)):
         wait_for_ram()
         tg = src.slice(start, PART).collect()
-        part = index.candidates(tg, k=args.k)
+        part = index.candidates(tg, k=args.k, k_wide=args.k_wide, k_char=args.k_char)
         part.sort("tid", "rk").write_parquet(out / f"part-{i:03d}.parquet", compression="zstd")
         print(f"  part {i}: targets {start:,}+{tg.height:,} -> {part.height:,} pairs  "
               f"{time.time() - t0:.0f}s  rss {rss_gb():.1f}GB", flush=True)

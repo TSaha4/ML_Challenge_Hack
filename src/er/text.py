@@ -195,6 +195,10 @@ def normalize_names(df: pl.DataFrame, col: str = "business_name",
         .str.replace_all(r"\bl\.\s*l\.\s*p\.?", "llp")
         .str.replace_all(r"\bp\.\s*c\.", "pc")
         .str.replace_all(r"\s-\s*\d{7,}\s*$", " ")
+        # digit-for-letter typos inside words: "c0astal", "hea1th", "federati0n"
+        .str.replace_all(r"([a-z])0([a-z])", "${1}o${2}")
+        .str.replace_all(r"([a-z])1([a-z])", "${1}l${2}")
+        .str.replace_all(r"([a-z]{2})0\b", "${1}o")
         .str.strip_chars()
         .alias("_f")
     )

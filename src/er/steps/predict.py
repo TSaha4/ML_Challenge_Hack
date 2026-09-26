@@ -1,6 +1,6 @@
 """Step 4: score the test candidates and write the two submission files.
 
-    python -m scripts.er_predict [--threshold 0.6]
+    python -m src.er.steps.predict [--threshold 0.6]
 
 Streams the test candidate parts (1M targets each): GPU featurisation -> GPU
 XGBoost scoring -> per-target argmax assignment above the tuned threshold.
@@ -19,6 +19,7 @@ from pathlib import Path
 
 import polars as pl
 
+from src.er.io import DATA_DIR
 from src.er.resources import lower_priority, rss_gb, wait_for_ram
 
 ART = Path("artifacts/er")
@@ -46,6 +47,7 @@ def main(argv=None) -> None:
     ap.add_argument("--threshold", type=float, default=None)
     ap.add_argument("--out-dir", default="output")
     ap.add_argument("--chunk-targets", type=int, default=100_000)
+    ap.add_argument("--validator", default="student_resource/utils/validate_submission.py")
     args = ap.parse_args(argv)
     lower_priority()
     from src.er import model as M
@@ -101,10 +103,13 @@ def main(argv=None) -> None:
     log(f"S1 rows {m.height:,}; with matches {nonempty.sum():,} ({nonempty.mean():.1%}); "
         f"matched ids {m['matched_entity_ids'].fill_null('').str.count_matches(',').sum() + nonempty.sum():,}")
 
-    cmd = [sys.executable, "student_resource/utils/validate_submission.py",
+    if not Path(args.validator).exists():
+        log(f"validator not found at {args.validator}; skipping (pass --validator)")
+        return
+    cmd = [sys.executable, args.validator,
            "--matching", str(out_dir / "matching_results.tsv"),
            "--candidate", str(out_dir / "candidate_pairs.tsv"),
-           "--test-dir", "student_resource/dataset/test"]
+           "--test-dir", str(DATA_DIR / "test")]
     r = subprocess.run(cmd, capture_output=True, text=True)
     print(r.stdout, r.stderr)
     log(f"validator exit code {r.returncode}")

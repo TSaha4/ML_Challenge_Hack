@@ -1,7 +1,7 @@
 """Step 1: learn transliteration maps and normalise a split to compact parquet.
 
-    python -m scripts.er_prepare --split train
-    python -m scripts.er_prepare --split test
+    python -m src.er.steps.prepare --split train
+    python -m src.er.steps.prepare --split test
 
 Train uses maps learned on the training fold only (validation Source-1 entities,
 ``s1 % 4 == 0``, are held out) so validation scores stay honest; test uses maps
@@ -16,11 +16,10 @@ from pathlib import Path
 
 import polars as pl
 
-from src.er.io import load_ground_truth, load_s1, load_targets
+from src.er.io import DATA_DIR, load_ground_truth, load_s1, load_targets
 from src.er.text import normalize_frame
 from src.er.translit import learn_addr_map, learn_name_map, load_maps, save_maps
 
-DATA = Path("student_resource/dataset")
 ART = Path("artifacts/er")
 VAL_MOD = 4
 
@@ -45,7 +44,7 @@ def learn_maps(data_dir: Path) -> None:
 
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-dir", default=str(DATA))
+    ap.add_argument("--data-dir", default=str(DATA_DIR))
     ap.add_argument("--split", choices=["train", "test"], required=True)
     ap.add_argument("--slice", type=int, default=1_000_000)
     args = ap.parse_args(argv)
