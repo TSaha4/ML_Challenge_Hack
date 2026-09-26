@@ -48,6 +48,7 @@ def main(argv=None) -> None:
     ap.add_argument("--out-dir", default="output")
     ap.add_argument("--chunk-targets", type=int, default=100_000)
     ap.add_argument("--validator", default="student_resource/utils/validate_submission.py")
+    ap.add_argument("--nn", default=None, help="neural matcher weights (if the model uses nn_p)")
     args = ap.parse_args(argv)
     lower_priority()
     from src.er import model as M
@@ -60,7 +61,7 @@ def main(argv=None) -> None:
     log(f"model best_iteration={meta['best_iteration']}  threshold={thr}")
 
     s1 = pl.read_parquet(ART / "test_s1.parquet")
-    fz = GpuFeaturizer(s1, pl.read_parquet(ART / "test_s1stats.parquet"))
+    fz = GpuFeaturizer(s1, pl.read_parquet(ART / "test_s1stats.parquet"), sib_dir=ART / "test_sibs", nn_path=args.nn)
     s1_order = s1.select("id")
     tg_scan = pl.scan_parquet(ART / "test_tg.parquet")
     parts = sorted((ART / "test_cands").glob("part-*.parquet"))

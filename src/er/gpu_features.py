@@ -17,6 +17,7 @@ a small, fixed number of CPU workers (``ER_WORKERS``, default 2).
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Dict, Optional
 
 import numpy as np
@@ -27,6 +28,7 @@ from rapidfuzz import fuzz
 from rapidfuzz.process import cpdist
 
 from src.er.features import add_context
+from src.er.siblings import SIB_FEATURES, SiblingLookup
 
 DEV = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 WORKERS = int(os.environ.get("ER_WORKERS", "2"))
@@ -48,7 +50,9 @@ FLAG_FEATURES = ["src", "n_alias", "n_domain", "n_indic", "ad_null", "ad_null_s"
                  "len_nm_t", "len_nm_s", "len_ad_t", "len_ad_s",
                  # name rarity: how many Source-1 records carry exactly this core name
                  "core_freq_s", "core_freq_t", "core_eq", "sq_eq"]
-FEATURES = BLOCK_FEATURES + GRAM_FEATURES + TOKEN_FEATURES + CPU_FEATURES + FLAG_FEATURES
+NUM_FEATURES = ["num_absdiff", "num_logratio"]
+FEATURES = (BLOCK_FEATURES + GRAM_FEATURES + TOKEN_FEATURES + CPU_FEATURES + FLAG_FEATURES
+            + NUM_FEATURES + SIB_FEATURES)
 
 
 # ---------------------------------------------------------------------------
@@ -190,7 +194,12 @@ class GpuFeaturizer:
               "src", "n_alias", "n_domain", "n_indic", "ad_null"]
     S_COLS = ["id", "nm", "core", "sq", "ad", "ad_num", "ad_null"]
 
-    def __init__(self, s1: pl.DataFrame, stats: pl.DataFrame):
+    def __init__(self, s1: pl.DataFrame, stats: pl.DataFrame, sib_dir=None, nn_path=None):
+        self.sibs = SiblingLookup(sib_dir) if sib_dir else None
+        self.nn = None
+        if nn_path and Path(nn_path).exists():
+            from src.er import nn as NN
+            self.nn = NN.load(nn_path)
         self.freq = s1.group_by("cty", "core").agg(pl.len().cast(pl.Int32).alias("core_freq"))
         self.s1 = (s1.select(*self.S_COLS, "cty")
                    .join(self.freq, on=["cty", "core"], how="left")
@@ -208,6 +217,22 @@ class GpuFeaturizer:
         ren = {k: f"{k}_s" for k in self.S_COLS if k not in ("id", "core_freq_s")}
         df = (c.join(tgt.rename({"id": "tid"}), on="tid", how="left")
               .join(self.s1.rename(ren).rename({"id": "s1"}), on="s1", how="left"))
+        # house-number distance (numeric part of the first number)
+        n_t = pl.col("ad_num").str.extract(r"^(\d+)", 1).cast(pl.Int64, strict=False)
+        n_s = pl.col("ad_num_s").str.extract(r"^(\d+)", 1).cast(pl.Int64, strict=False)
+        df = df.with_columns(
+            (n_t - n_s).abs().fill_null(-1).cast(pl.Float32).alias("num_absdiff"),
+            ((n_t + 1).cast(pl.Float64).log() - (n_s + 1).cast(pl.Float64).log()).abs()
+            .fill_null(-1).cast(pl.Float32).alias("num_logratio"),
+        )
+        if self.sibs is not None:
+            sf = self.sibs.features(df.select(
+                "tid", "s1", "rk", "src", "core", "ad", "ad_num", "ad_nums",
+                ((pl.col("ad_num") == pl.col("ad_num_s")) & (pl.col("ad_num") != "")).cast(pl.Int32)
+                .alias("num_eq_s_self")))
+            df = df.join(sf, on=["tid", "s1"], how="left")
+        else:
+            df = df.with_columns([pl.lit(0, pl.Int32).alias(c) for c in SIB_FEATURES])
         outs = [self._chunk(df.slice(i, gpu_chunk)) for i in range(0, df.height, gpu_chunk)]
         return pl.concat(outs)
 
@@ -259,8 +284,13 @@ class GpuFeaturizer:
             "tid", "s1", *BLOCK_FEATURES, "src", "n_alias", "n_domain", "n_indic", "ad_null", "ad_null_s",
             ((pl.col("ad_num") == pl.col("ad_num_s")) & (pl.col("ad_num") != "")).cast(pl.Int8).alias("num_first_eq"),
             ((pl.col("ad_num") == "") | (pl.col("ad_num_s") == "")).cast(pl.Int8).alias("num_missing"),
-            "core_freq_s", "core_freq_t",
+            "core_freq_s", "core_freq_t", *NUM_FEATURES, *SIB_FEATURES,
             (pl.col("core") == pl.col("core_s")).cast(pl.Int8).alias("core_eq"),
             (pl.col("sq") == pl.col("sq_s")).cast(pl.Int8).alias("sq_eq"),
         )
-        return out.with_columns([pl.Series(k, v) for k, v in f.items()]).select("tid", "s1", *FEATURES)
+        cols = FEATURES
+        if self.nn is not None:
+            from src.er import nn as NN
+            f["nn_p"] = NN.predict(self.nn, df)
+            cols = FEATURES + ["nn_p"]
+        return out.with_columns([pl.Series(k, v) for k, v in f.items()]).select("tid", "s1", *cols)

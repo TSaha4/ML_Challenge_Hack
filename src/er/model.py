@@ -27,8 +27,8 @@ XGB_PARAMS = {
 }
 
 
-def to_matrix(feats: pl.DataFrame) -> np.ndarray:
-    return feats.select([pl.col(c).cast(pl.Float32) for c in FEATURES]).to_numpy()
+def to_matrix(feats: pl.DataFrame, names=None) -> np.ndarray:
+    return feats.select([pl.col(c).cast(pl.Float32) for c in (names or FEATURES)]).to_numpy()
 
 
 def train(train_df: pl.DataFrame, valid_df: pl.DataFrame, rounds: int = 1500,
@@ -40,7 +40,8 @@ def train(train_df: pl.DataFrame, valid_df: pl.DataFrame, rounds: int = 1500,
 
 
 def predict(booster: xgb.Booster, feats: pl.DataFrame) -> np.ndarray:
-    d = xgb.DMatrix(to_matrix(feats), feature_names=FEATURES)
+    names = booster.feature_names or FEATURES  # the model's own feature list
+    d = xgb.DMatrix(to_matrix(feats, names), feature_names=names)
     return booster.predict(d, iteration_range=(0, booster.best_iteration + 1))
 
 

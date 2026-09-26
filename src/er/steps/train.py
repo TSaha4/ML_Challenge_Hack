@@ -38,6 +38,7 @@ def main(argv=None) -> None:
     ap.add_argument("--train-files", type=int, default=None,
                     help="use only the first N training feature files (100k targets each)")
     ap.add_argument("--max-bin", type=int, default=128)
+    ap.add_argument("--nn", default=None, help="neural matcher weights -> adds feature nn_p")
     args = ap.parse_args(argv)
     lower_priority()
     import xgboost as xgb
@@ -53,7 +54,7 @@ def main(argv=None) -> None:
     stats = pl.read_parquet(ART / "train_s1stats.parquet")
     cands = pl.scan_parquet(ART / "train_cands" / "part-*.parquet")
     tg_scan = pl.scan_parquet(ART / "train_tg.parquet")
-    fz = GpuFeaturizer(s1, stats)
+    fz = GpuFeaturizer(s1, stats, sib_dir=ART / "train_sibs", nn_path=args.nn)
     pos = gt.select("tid", "s1").with_columns(pl.lit(1, pl.Int8).alias("y"))
 
     # --- target split --------------------------------------------------------
@@ -62,8 +63,11 @@ def main(argv=None) -> None:
         cands.filter(pl.col("s1") % VAL_MOD == 0).select("tid").collect(),
         gt.filter(pl.col("s1") % VAL_MOD == 0).select("tid"),
     ]).unique()
-    pool = (tg_scan.select(pl.col("id").alias("tid")).collect()
-            .join(val_tids, on="tid", how="anti").sample(args.n_train + args.n_es, seed=42))
+    pool = tg_scan.select(pl.col("id").alias("tid")).collect().join(val_tids, on="tid", how="anti")
+    if args.nn:  # records reserved for the neural matcher never train XGBoost
+        from src.er.nn import NN_FOLD
+        pool = pool.filter(pl.col("tid") % 10 != NN_FOLD)
+    pool = pool.sample(args.n_train + args.n_es, seed=42)
     splits = {"train": pool.head(args.n_train), "es": pool.tail(args.n_es)}
     log(f"val S1 {val_s1.len():,} | val targets {val_tids.height:,} | "
         f"train targets {args.n_train:,} | es targets {args.n_es:,}")
@@ -90,6 +94,8 @@ def main(argv=None) -> None:
                 n += f.height
             log(f"features[{name}]: {n:,} pairs")
 
+    feat_names = FEATURES + (["nn_p"] if args.nn else [])
+
     class ParquetIter(xgb.DataIter):
         def __init__(self, files):
             self.files, self.i = files, 0
@@ -99,14 +105,18 @@ def main(argv=None) -> None:
             if self.i == len(self.files):
                 return False
             f = pl.read_parquet(self.files[self.i])
-            input_data(data=f.select([pl.col(c).cast(pl.Float32) for c in FEATURES]).to_numpy(),
-                       label=f["y"].to_numpy(), feature_names=FEATURES)
+            input_data(data=f.select([pl.col(c).cast(pl.Float32) for c in feat_names]).to_numpy(),
+                       label=f["y"].to_numpy(), feature_names=feat_names)
             self.i += 1
             return True
 
         def reset(self):
             self.i = 0
 
+    # free the featuriser (Source-1 text + sibling tables) while XGBoost builds its matrices
+    del fz
+    import gc
+    gc.collect()
     train_files = sorted((fdir / "train").glob("*.parquet"))[: args.train_files]
     dtr = xgb.QuantileDMatrix(ParquetIter(train_files), max_bin=args.max_bin)
     des = xgb.QuantileDMatrix(ParquetIter(sorted((fdir / "es").glob("*.parquet"))), ref=dtr, max_bin=args.max_bin)
@@ -119,6 +129,7 @@ def main(argv=None) -> None:
     log("top gain: " + ", ".join(f"{k}={v:.0f}" for k, v in sorted(imp.items(), key=lambda x: -x[1])[:15]))
 
     # --- validation: featurise + score in chunks -------------------------------
+    fz = GpuFeaturizer(s1, stats, sib_dir=ART / "train_sibs", nn_path=args.nn)
     scored = []
     for f in feature_chunks(val_tids):
         scored.append(f.select("tid", "s1").with_columns(pl.Series("p", M.predict(booster, f))))

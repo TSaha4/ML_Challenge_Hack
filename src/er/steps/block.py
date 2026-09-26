@@ -59,6 +59,9 @@ def main(argv=None) -> None:
     cands = pl.scan_parquet(out / "part-*.parquet")
     s1_stats(cands).write_parquet(ART / f"{args.split}_s1stats.parquet")
     n = cands.select(pl.len()).collect().item()
+    from src.er.siblings import build_sibling_tables
+    build_sibling_tables(str(out / "part-*.parquet"), str(ART / f"{args.split}_tg.parquet"),
+                         str(ART / f"{args.split}_s1.parquet"), ART / f"{args.split}_sibs")
     print(f"DONE {n:,} candidate pairs for {n_tg:,} targets -> {out}  {time.time() - t0:.0f}s", flush=True)
 
 

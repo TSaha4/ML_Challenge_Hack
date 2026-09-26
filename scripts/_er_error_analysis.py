@@ -2,7 +2,7 @@
 import polars as pl
 from src.er.io import load_ground_truth
 from src.er import model as M
-THR = 0.75
+THR = 0.70
 sc = pl.read_parquet("artifacts/er/val_scored.parquet")
 gt = load_ground_truth("student_resource/dataset")
 truth = gt.filter(pl.col("s1") % 100 == 0)
