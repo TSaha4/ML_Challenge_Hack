@@ -35,6 +35,7 @@ def main(argv=None) -> None:
     args = ap.parse_args(argv)
     lower_priority()
     from src.er import nn as NN
+    from src.er.nn import NN_FOLD
     from src.er.io import DATA_DIR, load_ground_truth
 
     t0 = time.time()

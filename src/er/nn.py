@@ -76,12 +76,19 @@ class Matcher(nn.Module):
         return self.head(torch.cat([vn, va, flags], -1)).squeeze(-1)
 
 
-def encode_pairs(df: pl.DataFrame):
-    """Byte tensors (uint8 on GPU) for columns nm, nm_s, ad, ad_s."""
+def encode_pairs(df: pl.DataFrame, chunk: int = 200_000):
+    """Byte tensors (uint8 on GPU) for columns nm, nm_s, ad, ad_s, built in chunks
+    so the int64 intermediates of ``to_bytes`` stay small."""
     out = []
     for col, L in (("nm", L_NAME), ("nm_s", L_NAME), ("ad", L_ADDR), ("ad_s", L_ADDR)):
-        x, _ = to_bytes(df[col], L)
-        out.append(x.to(torch.uint8))
+        parts = []
+        for i in range(0, df.height, chunk):
+            x, _ = to_bytes(df[col].slice(i, chunk), L)
+            parts.append(x.to(torch.uint8))
+            del x
+        out.append(torch.cat(parts))
+        del parts
+        torch.cuda.empty_cache()
     return out
 
 
