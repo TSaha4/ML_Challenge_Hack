@@ -40,8 +40,9 @@ python -m src.er.steps.prepare --split train   # learn transliteration maps, nor
 python -m src.er.steps.prepare --split test
 python -m src.er.steps.block --split train     # GPU candidate generation (~15 min)
 python -m src.er.steps.block --split test
-python -m src.er.steps.train --n-train 1200000 --train-files 8 --max-bin 128   # GPU features + XGBoost, validation, threshold
-python -m src.er.steps.predict --threshold 0.70 --validator <path>/validate_submission.py  # score test, write output/, validate
+python -m src.er.steps.nn                      # char-level neural matcher on a reserved record fold (~12 min)
+python -m src.er.steps.train --n-train 800000 --max-bin 128 --nn artifacts/er/nn/matcher.pt --model-dir artifacts/er/model_v4
+python -m src.er.steps.predict --model-dir artifacts/er/model_v4 --nn artifacts/er/nn/matcher.pt --threshold 0.75 --validator <path>/validate_submission.py
 ```
 
 Resource knobs (environment variables): `POLARS_MAX_THREADS` (CPU threads, default all),
@@ -59,6 +60,8 @@ free RAM is below this, default 2.5). All jobs run at below-normal priority.
 | `src/er/gpu_blocking.py` | CUDA inverted-index lookup, IDF scoring, top-k, char-gram re-rank |
 | `src/er/features.py` | per-record / per-entity candidate context statistics |
 | `src/er/gpu_features.py` | CUDA char n-gram and hashed-token pair features (+3 rapidfuzz scores) |
+| `src/er/siblings.py` | collective evidence from records competing for the same Source-1 entity |
+| `src/er/nn.py` | character-level decomposable-attention neural matcher (stacked as `nn_p`) |
 | `src/er/model.py` | XGBoost params, assignment, official macro-F0.5, threshold tuning |
 | `src/er/resources.py` | low priority + free-RAM guard |
 | `src/er/steps/` | the four entry points above |

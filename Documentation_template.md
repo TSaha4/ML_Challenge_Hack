@@ -13,7 +13,10 @@ one Source-1 entity, so each record is matched to its most likely Source-1 entit
 when a GPU-trained XGBoost model is confident enough (threshold tuned for macro F0.5). Candidate
 generation is a rare-key inverted index executed on the GPU and re-ranked by character-n-gram
 similarity, which keeps **98.1 %** of true matches with ~13 candidates per record. On a held-out
-set of 22,224 Source-1 entities the pipeline scores **macro F0.5 = 0.9775** (pair precision 99.3 %).
+set of 22,224 Source-1 entities the pipeline scores **macro F0.5 = 0.9844** (pair precision 99.7 %,
+recall 96.3 %). Two further ideas drive the final model: **collective evidence** from the other records
+competing for the same Source-1 entity, and a **character-level neural matcher** (trained from
+scratch) stacked into XGBoost.
 
 ---
 
@@ -93,7 +96,7 @@ normalise (polars) → GPU rare-key blocking → GPU char-gram re-rank → GPU p
 
 ## 4. Matching Model
 
-**Features used** (83, all computed on the GPU except three rapidfuzz scores):
+**Features used** (84, all computed on the GPU except three rapidfuzz scores):
 - **Name features:** exact char 2-gram and 3-gram multiset Jaccard and both containments for the
   normalised name, core name and space-less name; hashed-token Jaccard and IDF-weighted token
   overlap/coverage of the core name; the alias-prefix overlap; rapidfuzz `ratio` (name) and
@@ -108,16 +111,29 @@ normalise (polars) → GPU rare-key blocking → GPU char-gram re-rank → GPU p
   how many records rank this Source-1 first, record flags (source 2 vs 3, alias, website-name,
   Indic script).
 
-**Model type:** XGBoost gradient-boosted trees (`device=cuda`, depth 9, eta 0.08, 1135 rounds
-chosen by early stopping on held-out records), trained on 10.5M labelled pairs from 800k
-records; features streamed from disk into a GPU `QuantileDMatrix`. Apache-2.0, far below the
-8B-parameter limit.
+- **Collective (sibling) features:** for pair (record t, Source-1 s), the other records whose
+  top candidate is also s: how many share t's house number / full address / all numbers / core
+  name / source, how many agree with s's own house number, and the fractions. Rationale found in
+  EDA: a source perturbs a business's address once and all its copies share it, so on train a
+  record whose number disagrees with s is a true match 13 % of the time alone but 64 % / 87 % when
+  one / two siblings share that number. Also numeric house-number distance (absolute and log).
+- **Neural feature `nn_p`:** probability from a character-level decomposable-attention matcher
+  (byte embedding → 2 conv layers per field; name and address of both sides soft-aligned to each
+  other; [x, aligned, x−aligned, x·aligned] → pooled → MLP; ~0.3M parameters, trained from
+  scratch with AMP on 5.3M pairs, 2 epochs, held-out logloss 0.0066 from text alone). It is trained
+  on a reserved record fold (`tid % 10 == 7`) that XGBoost never trains on, so the stacked feature
+  is out-of-sample.
+
+**Model type:** XGBoost gradient-boosted trees (`device=cuda`, depth 9, eta 0.08, early stopping on
+held-out records → 428 rounds) over the 83 engineered features + `nn_p`, trained on 10.5M labelled
+pairs from 800k records; features streamed from disk into a GPU `QuantileDMatrix`. Both models are
+our own (XGBoost Apache-2.0, PyTorch BSD) and far below the 8B-parameter limit.
 
 **Decision rule / threshold selection:** each record is assigned to its highest-probability
 Source-1 candidate if `p ≥ threshold`. The threshold is chosen by grid search of the **official
 macro F0.5** (per-entity F0.5 averaged over all Source-1 entities, singletons included) on the
-validation entities. The curve is flat between 0.65 and 0.75 (0.9775 → 0.9773); we submit 0.70
-as a slightly precision-leaning choice for the unseen French data.
+validation entities. The curve is flat between 0.60 and 0.80 (0.9842–0.9844); we submit 0.75.
+A per-entity expected-F0.5 decision rule was also evaluated and gave no gain (+0.0002).
 
 **Validation protocol:** Source-1 ids with `id % 100 == 0` (22,224 entities, ~1.28M records that
 have one of them as a candidate) are excluded from training, from early stopping and from the
@@ -131,9 +147,11 @@ merges into validation entities are counted.
 | Version | Candidate recall | Macro F0.5 | Singleton F0.5 | Matched F0.5 | Pair P | Pair R |
 |---|---|---|---|---|---|---|
 | v1: IDF blocking, 500k training records | 95.7 % | 0.9678 | 0.973 | 0.968 | 0.994 | 0.928 |
-| **v2: + char re-rank, typo repair, name rarity, 800k records** | **98.1 %** | **0.9775** | 0.970 | 0.978 | 0.993 | 0.952 |
+| v2: + char re-rank, typo repair, name rarity, 800k records | 98.1 % | 0.9775 | 0.970 | 0.978 | 0.993 | 0.952 |
+| v3: + collective sibling features, house-number distance | 98.1 % | 0.9804 | 0.972 | 0.981 | 0.995 | 0.960 |
+| **v4: + stacked neural matcher (`nn_p`)** | **98.1 %** | **0.9844** | 0.978 | 0.985 | 0.997 | 0.963 |
 
-- **F_0.5 Score (macro):** **0.9775** on held-out validation entities (thr 0.70: 0.9774).
+- **F_0.5 Score (macro):** **0.9844** on held-out validation entities (thr 0.75).
 - **Where the remaining score is lost (v1 analysis):** ~85 % of the loss is **missed** records, not
   wrong merges — precision is already ~99.3 %.
 - **Common false positives (wrong merges):** mostly records of businesses absent from Source-1

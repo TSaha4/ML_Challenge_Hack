@@ -16,7 +16,7 @@ for reference only. Full details: [`README_er.md`](README_er.md) (how to run) an
 
 | | Status |
 |---|---|
-| Validation macro F0.5 (22,224 held-out Source-1 entities, singletons included) | **0.9775** (pair precision 99.3 %, recall 95.2 %) |
+| Validation macro F0.5 (22,224 held-out Source-1 entities, singletons included) | **0.9844** (pair precision 99.7 %, recall 96.3 %) |
 | Candidate recall on all 7.64M training pairs | **98.1 %** (~13 candidates per record) |
 | Full test run (1.73M Source-1, 9.97M records) | done, `output/*.tsv` pass the official validator incl. `--check-ids` |
 | Final zip | `python scripts/er_package.py --team <TEAM>` → `dist/<TEAM>_submission.zip` |
@@ -29,8 +29,9 @@ enough. Blocking, re-ranking, features and training all run on the GPU (RTX 3060
 pip install -r requirements-er.txt
 python -m src.er.steps.prepare --split train && python -m src.er.steps.prepare --split test
 python -m src.er.steps.block --split train   && python -m src.er.steps.block --split test
-python -m src.er.steps.train --n-train 1200000 --train-files 8 --max-bin 128
-python -m src.er.steps.predict --threshold 0.70
+python -m src.er.steps.nn                      # char-level neural matcher (GPU)
+python -m src.er.steps.train --n-train 800000 --max-bin 128 --nn artifacts/er/nn/matcher.pt --model-dir artifacts/er/model_v4
+python -m src.er.steps.predict --model-dir artifacts/er/model_v4 --nn artifacts/er/nn/matcher.pt --threshold 0.75
 ```
 
 Outputs (`output/`, `artifacts/`, `dist/`) are git-ignored; regenerate them with the
