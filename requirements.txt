@@ -1,0 +1,35 @@
+# Core data processing
+numpy
+pandas
+scipy
+polars
+pyarrow
+duckdb
+
+# String / entity matching
+rapidfuzz
+Unidecode
+
+# Machine learning
+scikit-learn
+lightgbm
+xgboost
+catboost
+
+# Approximate nearest neighbor
+faiss-cpu
+
+# Parallel processing / progress
+joblib
+tqdm
+
+# Configuration
+PyYAML
+
+# Visualization / analysis
+matplotlib
+seaborn
+
+# Notebooks
+jupyter
+ipykernel

@@ -1,0 +1,23 @@
+# Python / environment
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Competition data — large and not redistributed
+student_resource/
+
+# macOS / archive junk
+.DS_Store
+__MACOSX/
+
+# Generated artifacts, models and logs
+artifacts/
+catboost_info/
+*.duckdb
+*.joblib
+*.log
+*.pid
+
+# Submission outputs (regenerate with `python -m src.inference`)
+output/
