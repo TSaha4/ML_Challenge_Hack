@@ -41,7 +41,7 @@ python -m src.er.steps.prepare --split test
 python -m src.er.steps.block --split train     # GPU candidate generation (~15 min)
 python -m src.er.steps.block --split test
 python -m src.er.steps.train --n-train 1200000 --train-files 8 --max-bin 128   # GPU features + XGBoost, validation, threshold
-python -m src.er.steps.predict --validator <path>/validate_submission.py      # score test, write output/, validate
+python -m src.er.steps.predict --threshold 0.70 --validator <path>/validate_submission.py  # score test, write output/, validate
 ```
 
 Resource knobs (environment variables): `POLARS_MAX_THREADS` (CPU threads, default all),
