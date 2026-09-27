@@ -97,11 +97,14 @@ def gram_overlap(xa, la, xb, lb, q: int):
     """Jaccard, |A∩B|/|A|, |A∩B|/|B| over char q-gram multisets (row-wise)."""
     ga, na = _grams(xa, la, q, -1)
     gb, nb = _grams(xb, lb, q, -2)
-    gb, _ = torch.sort(gb, dim=1)
-    idx = torch.searchsorted(gb, ga).clamp(max=gb.shape[1] - 1)
-    hit = (torch.gather(gb, 1, idx) == ga) & (ga >= 0)
-    inter = hit.sum(1).float()
-    inter = torch.minimum(inter, torch.minimum(na, nb).float())
+    ga = ga.sort(dim=1).values.contiguous()
+    gb = gb.sort(dim=1).values.contiguous()
+    # The nth occurrence in A matches only if B contains at least n copies.
+    # A presence-only lookup overcounts repeated grams and is asymmetric.
+    first_a = torch.searchsorted(ga, ga, right=False)
+    occurrence = torch.arange(ga.shape[1], device=ga.device)[None, :] - first_a
+    count_b = torch.searchsorted(gb, ga, right=True) - torch.searchsorted(gb, ga, right=False)
+    inter = ((ga >= 0) & (occurrence < count_b)).sum(1).float()
     naf, nbf = na.float(), nb.float()
     jac = inter / (naf + nbf - inter).clamp(min=1)
     return jac, inter / naf.clamp(min=1), inter / nbf.clamp(min=1)
@@ -161,9 +164,11 @@ class TokenIdf:
         allh = torch.cat(hs)
         self.keys, cnt = torch.unique(allh, return_counts=True)
         self.idf = torch.log(torch.tensor(float(s.len()), device=DEV) / cnt.float()).clamp(min=0.1)
-        self.default = float(np.log(s.len()))
+        self.default = float(np.log(max(s.len(), 1)))
 
     def __call__(self, h):
+        if not self.keys.numel():
+            return torch.full(h.shape, self.default, dtype=torch.float32, device=h.device)
         pos = torch.searchsorted(self.keys, h).clamp(max=self.keys.numel() - 1)
         found = self.keys[pos] == h
         return torch.where(found, self.idf[pos], torch.full_like(self.idf[pos], self.default))
@@ -197,7 +202,9 @@ class GpuFeaturizer:
     def __init__(self, s1: pl.DataFrame, stats: pl.DataFrame, sib_dir=None, nn_path=None):
         self.sibs = SiblingLookup(sib_dir) if sib_dir else None
         self.nn = None
-        if nn_path and Path(nn_path).exists():
+        if nn_path:
+            if not Path(nn_path).is_file():
+                raise FileNotFoundError(nn_path)
             from src.er import nn as NN
             self.nn = NN.load(nn_path)
         self.freq = s1.group_by("cty", "core").agg(pl.len().cast(pl.Int32).alias("core_freq"))
@@ -234,6 +241,9 @@ class GpuFeaturizer:
         else:
             df = df.with_columns([pl.lit(0, pl.Int32).alias(c) for c in SIB_FEATURES])
         outs = [self._chunk(df.slice(i, gpu_chunk)) for i in range(0, df.height, gpu_chunk)]
+        if not outs:
+            cols = FEATURES + (["nn_p"] if self.nn is not None else [])
+            return pl.DataFrame(schema={"tid": pl.Int64, "s1": pl.Int64, **{c: pl.Float32 for c in cols}})
         return pl.concat(outs)
 
     def _chunk(self, df: pl.DataFrame) -> pl.DataFrame:

@@ -2,8 +2,8 @@
 
     python -m src.er.steps.nn [--n-targets 400000 --epochs 2]
 
-Uses training records with ``tid % 10 == NN_FOLD`` whose candidates contain no
-validation Source-1 entity; XGBoost excludes that fold, so its ``nn_p`` feature is
+Uses training records with ``tid % 10 == NN_FOLD`` whose candidates and truth
+contain no calibration or holdout Source-1 entity; XGBoost excludes that fold, so its ``nn_p`` feature is
 always out-of-sample.
 """
 
@@ -17,7 +17,7 @@ import polars as pl
 
 from src.er.resources import lower_priority, rss_gb
 
-ART = Path("artifacts/er")
+from src.er.artifacts import ART
 VAL_MOD = 100
 
 
@@ -42,9 +42,12 @@ def main(argv=None) -> None:
     log = lambda m: print(f"[{time.time() - t0:6.0f}s rss {rss_gb():.1f}GB] {m}", flush=True)
     gt = load_ground_truth(DATA_DIR).select("tid", "s1").with_columns(pl.lit(1, pl.Int8).alias("y"))
     cands = pl.scan_parquet(ART / "train_cands" / "part-*.parquet").select("tid", "s1")
-    val_t = cands.filter(pl.col("s1") % VAL_MOD == 0).select("tid").unique()
+    from src.er.splits import reserved_targets
+    from src.er.artifacts import require_current_blocking
+    require_current_blocking(ART, 'train')
+    val_t = reserved_targets(cands, gt).lazy()
     fold = (cands.filter(pl.col("tid") % 10 == NN_FOLD).select("tid").unique()
-            .join(val_t, on="tid", how="anti").collect().sample(args.n_targets + args.n_valid, seed=7))
+            .join(val_t, on="tid", how="anti").collect().sort("tid").sample(args.n_targets + args.n_valid, seed=7, shuffle=True))
     s1 = pl.read_parquet(ART / "train_s1.parquet", columns=["id", "nm", "ad"])
 
     def build(tids: pl.DataFrame) -> pl.DataFrame:

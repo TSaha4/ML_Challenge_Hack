@@ -99,7 +99,7 @@ def predict(model: Matcher, df: pl.DataFrame, batch: int = 8192) -> np.ndarray:
     out = torch.empty(nt.shape[0], device=DEV)
     for i in range(0, nt.shape[0], batch):
         sl = slice(i, i + batch)
-        with torch.autocast("cuda", dtype=torch.float16):
+        with torch.autocast(DEV.type, dtype=torch.float16, enabled=DEV.type == "cuda"):
             out[sl] = model(nt[sl].long(), ns[sl].long(), at[sl].long(), as_[sl].long()).float()
     return torch.sigmoid(out).cpu().numpy()
 
@@ -123,7 +123,7 @@ def train_model(df: pl.DataFrame, epochs: int = 2, batch: int = 1024, lr: float 
         tot = 0.0
         for i in range(0, n, batch):
             idx = perm[i:i + batch]
-            with torch.autocast("cuda", dtype=torch.float16):
+            with torch.autocast(DEV.type, dtype=torch.float16, enabled=DEV.type == "cuda"):
                 logit = model(*(e[idx].long() for e in enc))
                 loss = F.binary_cross_entropy_with_logits(logit.float(), y_all[idx])
             opt.zero_grad(set_to_none=True)
@@ -148,11 +148,16 @@ def train_model(df: pl.DataFrame, epochs: int = 2, batch: int = 1024, lr: float 
 
 def save(model: Matcher, path: str | Path) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    torch.save(model.state_dict(), path)
+    from src.er.artifacts import FEATURE_VERSION
+    torch.save({'feature_version': FEATURE_VERSION, 'state_dict': model.state_dict()}, path)
 
 
 def load(path: str | Path) -> Matcher:
     m = Matcher().to(DEV)
-    m.load_state_dict(torch.load(path, map_location=DEV))
+    from src.er.artifacts import FEATURE_VERSION
+    checkpoint = torch.load(path, map_location=DEV, weights_only=True)
+    if checkpoint.get('feature_version') != FEATURE_VERSION:
+        raise ValueError('Retrain the neural matcher with the current reserved entity folds')
+    m.load_state_dict(checkpoint['state_dict'])
     m.eval()
     return m
