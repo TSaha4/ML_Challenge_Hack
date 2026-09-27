@@ -125,6 +125,21 @@ IN_STATES = {
     "lakshadweep": "ld", "ladakh": "la",
 }
 
+#: French regions and their departments -> a shared region code. Source-1 writes the
+#: region ("Nouvelle-Aquitaine") while Source-2/3 often write the department ("Gironde").
+FR_ADMIN = {
+    "hauts de france": "frhdf", "hauts france": "frhdf", "nord pas de calais": "frhdf",
+    "pas de calais": "frhdf", "nord": "frhdf", "somme": "frhdf", "aisne": "frhdf", "oise": "frhdf",
+    "nouvelle aquitaine": "frnaq", "gironde": "frnaq", "landes": "frnaq", "dordogne": "frnaq",
+    "pyrenees atlantiques": "frnaq", "charente maritime": "frnaq",
+    "pays de la loire": "frpdl", "pays loire": "frpdl", "loire atlantique": "frpdl",
+    "vendee": "frpdl", "maine et loire": "frpdl", "sarthe": "frpdl", "mayenne": "frpdl",
+    "ile de france": "fridf", "paris": "fridf",
+    "auvergne rhone alpes": "frara", "occitanie": "frocc", "grand est": "frges",
+    "bretagne": "frbre", "normandie": "frnor", "provence alpes cote d azur": "frpac",
+    "bourgogne franche comte": "frbfc", "centre val de loire": "frcvl", "corse": "frcor",
+}
+
 _ALIAS_RE = r"\b(?:d\s*/\s*b\s*/\s*a|d\.b\.a\.?|dba|f\s*/\s*k\s*/\s*a|f\.k\.a\.?|fka|a\s*/\s*k\s*/\s*a|a\.k\.a\.?|aka|nee|formerly|trading as|t\s*/\s*a)\b\s*:?"
 _DOMAIN_RE = r"^(?:www\.)?([a-z0-9\-]+)\.(?:com|net|org|in|co\.in|co|fr|biz|info|us)$"
 
@@ -194,6 +209,14 @@ def normalize_names(df: pl.DataFrame, col: str = "business_name",
         .str.replace_all(r"\bl\.\s*l\.\s*c\.?", "llc")
         .str.replace_all(r"\bl\.\s*l\.\s*p\.?", "llp")
         .str.replace_all(r"\bp\.\s*c\.", "pc")
+        # dotted French legal forms: S.A.S.U. / S.A.S. / S.A.R.L. / E.U.R.L. / S.N.C. / S.C.I. / S.A.
+        .str.replace_all(r"\bs\.\s*a\.\s*s\.\s*u\.?", " sasu ")
+        .str.replace_all(r"\bs\.\s*a\.\s*s\.?", " sas ")
+        .str.replace_all(r"\bs\.\s*a\.\s*r\.\s*l\.?", " sarl ")
+        .str.replace_all(r"\be\.\s*u\.\s*r\.\s*l\.?", " eurl ")
+        .str.replace_all(r"\bs\.\s*n\.\s*c\.?", " snc ")
+        .str.replace_all(r"\bs\.\s*c\.\s*i\.?", " sci ")
+        .str.replace_all(r"\bs\.\s*a\.", " sa ")
         .str.replace_all(r"\s-\s*\d{7,}\s*$", " ")
         # digit-for-letter typos inside words: "c0astal", "hea1th", "federati0n"
         .str.replace_all(r"([a-z])0([a-z])", "${1}o${2}")
@@ -288,8 +311,9 @@ def normalize_addresses(df: pl.DataFrame, col: str = "business_address",
     )
     e = _phrase_map_expr(e, US_STATES)
     e = _phrase_map_expr(e, IN_STATES)
+    e = _phrase_map_expr(e, {k: v for k, v in FR_ADMIN.items() if " " in k})
     tmp = tmp.with_columns(e.alias("_c"))
-    single_states = {k: v for k, v in {**US_STATES, **IN_STATES}.items() if " " not in k}
+    single_states = {k: v for k, v in {**US_STATES, **IN_STATES, **FR_ADMIN}.items() if " " not in k}
     canon = {**ADDR_CANON, **single_states}
     toks = (
         _tokens_canon(pl.col("_c"), canon)
