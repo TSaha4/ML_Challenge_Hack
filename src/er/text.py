@@ -315,7 +315,7 @@ def normalize_frame(df: pl.DataFrame, name_map: Optional[Dict[str, str]] = None,
     df = normalize_names(df, token_map=name_map)
     df = normalize_addresses(df, token_map=addr_map)
     return df.select(
-        "id", pl.col("country").fill_null("").str.to_lowercase().alias("cty"),
+        "id", "entity_id", pl.col("country").fill_null("").str.strip_chars().str.to_lowercase().alias("cty"),
         "nm", "core", "sq", "nm_pre", "n_alias", "n_domain", "n_indic",
         "ad", "ad_nums", "ad_num", "ad_null",
     )

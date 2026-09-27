@@ -9,6 +9,8 @@ full-test inference with submission export.
 
 ## ⭐ Current submission pipeline: GPU v2 (`src/er/`)
 
+**Correction branch:** see the [fresh retraining guide](README_er.md#corrected-pipeline-on-codexer-v2-quality-fixes). Character similarity and validation have changed; rebuild all artifacts in a new directory. Scores below describe historical runs, not the corrected code.
+
 The submission is produced by the **GPU v2 pipeline** in `src/er/` (branch `er-v2`).
 It replaces the prototype DuckDB/LightGBM path described further below, which is kept
 for reference only. Full details: [`README_er.md`](README_er.md) (how to run) and
@@ -31,7 +33,7 @@ python -m src.er.steps.prepare --split train && python -m src.er.steps.prepare -
 python -m src.er.steps.block --split train   && python -m src.er.steps.block --split test
 python -m src.er.steps.nn                      # char-level neural matcher (GPU)
 python -m src.er.steps.train --n-train 800000 --max-bin 128 --nn artifacts/er/nn/matcher.pt --model-dir artifacts/er/model_v4
-python -m src.er.steps.predict --model-dir artifacts/er/model_v4 --nn artifacts/er/nn/matcher.pt --threshold 0.75
+python -m src.er.steps.predict --model-dir artifacts/er/model_v4 --nn artifacts/er/nn/matcher.pt
 ```
 
 Outputs (`output/`, `artifacts/`, `dist/`) are git-ignored; regenerate them with the

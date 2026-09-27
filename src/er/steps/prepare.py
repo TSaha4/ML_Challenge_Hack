@@ -20,7 +20,7 @@ from src.er.io import DATA_DIR, load_ground_truth, load_s1, load_targets
 from src.er.text import normalize_frame
 from src.er.translit import learn_addr_map, learn_name_map, load_maps, save_maps
 
-ART = Path("artifacts/er")
+from src.er.artifacts import ART
 VAL_MOD = 4
 
 
@@ -52,10 +52,22 @@ def main(argv=None) -> None:
     ART.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
 
+    from src.er.artifacts import FEATURE_VERSION, fingerprint, write_manifest, atomic_parquet
+    import json
+    map_inputs = [data_dir / 'train' / f'train_source{i}.tsv' for i in (1, 2, 3)]
+    map_inputs += [data_dir / 'train' / 'train_ground_truth.tsv',
+                   Path(__file__), Path(__file__).parents[1] / 'translit.py']
+    map_identity = fingerprint(map_inputs, {'feature_version': FEATURE_VERSION})
+    map_manifest = ART / 'translit_manifest.json'
+    maps_current = (map_manifest.exists()
+                    and json.loads(map_manifest.read_text()).get('identity') == map_identity
+                    and (ART / 'translit_trainfold.json').exists()
+                    and (ART / 'translit_all.json').exists())
     maps_file = ART / ("translit_trainfold.json" if args.split == "train" else "translit_all.json")
-    if not maps_file.exists():
+    if not maps_current:
         print("learning transliteration maps ...")
         learn_maps(data_dir)
+        write_manifest(map_manifest, map_identity)
     name_map, addr_map = load_maps(maps_file)
 
     for side, loader in (("s1", load_s1), ("tg", load_targets)):
@@ -69,7 +81,7 @@ def main(argv=None) -> None:
         if side == "tg":
             norm = norm.with_columns((pl.col("id") // 10_000_000_000).cast(pl.Int8).alias("src"))
         out = ART / f"{args.split}_{side}.parquet"
-        norm.write_parquet(out, compression="zstd")
+        atomic_parquet(norm, out)
         print(f"  {args.split}/{side}: {norm.height:,} rows -> {out} "
               f"({out.stat().st_size / 1e6:.0f} MB)  {time.time() - t0:.0f}s", flush=True)
         del norm

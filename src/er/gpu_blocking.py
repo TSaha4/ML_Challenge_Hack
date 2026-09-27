@@ -135,7 +135,7 @@ class GpuIndex:
         """
         out = []
         stack = [(s, min(slice_targets, targets.height - s)) for s in range(0, targets.height, slice_targets)]
-        while stack:
+        while stack and self.uh.numel():
             start, n = stack.pop(0)
             part = targets.slice(start, n)
             keys = make_keys(part).rename({"id": "tid"})

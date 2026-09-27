@@ -18,7 +18,7 @@ import polars as pl
 
 from src.er.resources import lower_priority, rss_gb, wait_for_ram
 
-ART = Path("artifacts/er")
+from src.er.artifacts import ART
 COLS = ["id", "cty", "core", "sq", "ad"]
 PART = 1_000_000
 
@@ -36,6 +36,9 @@ def main(argv=None) -> None:
     from src.er.gpu_blocking import GpuIndex
 
     t0 = time.time()
+    for side in ('s1', 'tg'):
+        if 'entity_id' not in pl.read_parquet_schema(ART / f'{args.split}_{side}.parquet'):
+            raise ValueError('Old normalized files discard original IDs. Run prepare for this split again.')
     s1 = pl.read_parquet(ART / f"{args.split}_s1.parquet", columns=COLS)
     index = GpuIndex(s1, cap=args.cap)
     del s1
@@ -43,6 +46,7 @@ def main(argv=None) -> None:
 
     out = ART / f"{args.split}_cands"
     out.mkdir(exist_ok=True)
+    (out / "manifest.json").unlink(missing_ok=True)
     for old in out.glob("part-*.parquet"):
         old.unlink()
     src = pl.scan_parquet(ART / f"{args.split}_tg.parquet").select(COLS)
@@ -62,6 +66,10 @@ def main(argv=None) -> None:
     from src.er.siblings import build_sibling_tables
     build_sibling_tables(str(out / "part-*.parquet"), str(ART / f"{args.split}_tg.parquet"),
                          str(ART / f"{args.split}_s1.parquet"), ART / f"{args.split}_sibs")
+    from src.er.artifacts import FEATURE_VERSION, fingerprint, write_manifest
+    write_manifest(out / 'manifest.json', fingerprint([ART / f'{args.split}_s1.parquet',
+                    ART / f'{args.split}_tg.parquet']), feature_version=FEATURE_VERSION,
+                    settings={'cap': args.cap, 'k': args.k, 'k_wide': args.k_wide, 'k_char': args.k_char})
     print(f"DONE {n:,} candidate pairs for {n_tg:,} targets -> {out}  {time.time() - t0:.0f}s", flush=True)
 
 
