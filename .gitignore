@@ -25,3 +25,4 @@ output/
 # Packaged submission zips
 dist/
 output_*/
+student_resource_sim/
