@@ -28,21 +28,29 @@ from src.er.artifacts import ART
 
 def write_lists(s1_order: pl.DataFrame, pairs: pl.LazyFrame, header: str, path: Path,
                 chunk: int = 200_000, *, target_ids: pl.LazyFrame):
-    """Preserve original ID spelling, including leading zeroes, and all singletons."""
-    lookup = target_ids.select(pl.col('id').alias('tid'), pl.col('entity_id').alias('_target_id'))
-    joined = pairs.unique(['s1', 'tid']).join(lookup, on='tid', how='left')
-    if joined.filter(pl.col('_target_id').is_null()).select(pl.len()).collect().item():
-        raise ValueError('Scored candidate references an unknown target ID')
-    grouped = (joined.group_by('s1').agg(pl.col('_target_id').unique().sort().str.join(',').alias('ids'))
-               .collect(engine='streaming'))
+    """Preserve original ID spelling, including leading zeroes, and all singletons.
+
+    Memory-bounded: pairs are grouped per Source-1 on integer ids (streaming); the
+    original target-id strings are joined only for one chunk of Source-1 rows at a time.
+    """
+    lookup = target_ids.select(pl.col('id').alias('tid'), pl.col('entity_id').alias('_target_id')).collect()
+    grouped = (pairs.select('s1', 'tid').unique(['s1', 'tid']).group_by('s1')
+               .agg(pl.col('tid')).collect(engine='streaming'))
     tmp = path.with_suffix(path.suffix + '.tmp')
     with tmp.open('w', encoding='utf-8', newline='\n') as fh:
         fh.write(header)
         for i in range(0, s1_order.height, chunk):
-            sub = s1_order.slice(i, chunk).join(grouped, left_on='id', right_on='s1', how='left',
-                                               maintain_order='left')
-            lines = sub.select((pl.col('entity_id') + pl.lit('\t') + pl.col('ids').fill_null('')).alias('l'))
+            sub = (s1_order.slice(i, chunk).with_row_index('_ord')
+                   .join(grouped, left_on='id', right_on='s1', how='left', maintain_order='left'))
+            ex = (sub.select('_ord', 'tid').explode('tid').drop_nulls('tid')
+                  .join(lookup, on='tid', how='left'))
+            if ex['_target_id'].null_count():
+                raise ValueError('Scored candidate references an unknown target ID')
+            ids = ex.group_by('_ord').agg(pl.col('_target_id').unique().sort().str.join(',').alias('ids'))
+            lines = (sub.select('_ord', 'entity_id').join(ids, on='_ord', how='left').sort('_ord')
+                     .select((pl.col('entity_id') + pl.lit('\t') + pl.col('ids').fill_null('')).alias('l')))
             fh.write('\n'.join(lines['l'].to_list()) + '\n')
+            del sub, ex, ids, lines
     tmp.replace(path)
 
 
@@ -117,9 +125,23 @@ def main(argv=None) -> None:
         log(f"scored part {i + 1}/{len(parts)}: {cands.height:,} pairs")
         del cands, res
 
-    scored = pl.scan_parquet([scored_dir / f"part-{i:03d}.parquet" for i in range(len(parts))])
-    best = (scored.sort(["p", "s1"], descending=[True, False]).group_by("tid").first()
-            .filter(pl.col("p") >= thr).select("tid", "s1"))
+    # scoring is done: release the featuriser (Source-1 text, sibling tables, neural net)
+    del fz, s1
+    import gc
+    gc.collect()
+    try:
+        import torch
+        torch.cuda.empty_cache()
+    except Exception:
+        pass
+    score_files = [scored_dir / f"part-{i:03d}.parquet" for i in range(len(parts))]
+    scored = pl.scan_parquet(score_files)
+    # each candidate part holds complete targets, so the per-target argmax is exact per part
+    best = pl.concat([
+        pl.read_parquet(f).sort(["p", "s1"], descending=[True, False]).unique("tid", keep="first")
+        .filter(pl.col("p") >= thr).select("tid", "s1")
+        for f in score_files
+    ]).lazy()
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     wait_for_ram()
