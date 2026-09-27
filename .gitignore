@@ -24,3 +24,4 @@ output/
 
 # Packaged submission zips
 dist/
+output_*/
