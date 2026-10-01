@@ -1,0 +1,95 @@
+v4 run - the submission that scored 0.968 on the leaderboard (uploaded 27 Sep 08:15 IST)
+Pipeline: GPU blocking (cap 500 + char re-rank) -> 83 features incl. collective/sibling features
+          + stacked char-level neural matcher (nn_p) -> XGBoost (CUDA) -> threshold 0.75
+Validation (22,224 held-out train S1, US+India only): macro F0.5 0.9844 | Leaderboard: 0.968
+
+==================================================================================
+FILE: nn_train.log    (last modified 2026-09-27 02:45)
+STEP 1: neural matcher training (reserved record fold, 2 epochs)
+==================================================================================
+[    10s rss 2.9GB] nn train pairs 5,295,586 (pos 292,186) | valid pairs 264,266
+[   132s rss 2.7GB]   nn epoch 0 step 2000/10344 loss 0.0499 118s
+[   252s rss 2.7GB]   nn epoch 0 step 4000/10344 loss 0.0300 237s
+[   331s rss 2.7GB]   nn epoch 0 train loss 0.0252 | valid logloss 0.0081  317s
+[   384s rss 2.7GB]   nn epoch 1 step 6000/10344 loss 0.0071 370s
+[   508s rss 2.7GB]   nn epoch 1 step 8000/10344 loss 0.0067 494s
+[   632s rss 2.7GB]   nn epoch 1 step 10000/10344 loss 0.0063 617s
+[   659s rss 2.7GB]   nn epoch 1 train loss 0.0062 | valid logloss 0.0066  644s
+[   659s rss 2.7GB] saved artifacts\er\nn\matcher.pt
+
+==================================================================================
+FILE: v4_train.log    (last modified 2026-09-27 03:11)
+STEP 2: XGBoost training with nn_p + validation / threshold curve
+==================================================================================
+[     9s rss 3.1GB] val S1 22,224 | val targets 1,283,072 | train targets 800,000 | es targets 100,000
+[   459s rss 2.5GB] features[train]: 10,524,120 pairs
+[   517s rss 2.8GB] features[es]: 1,315,825 pairs
+[   553s rss 4.4GB] train rows 10,524,120  es rows 1,315,825
+[0]	train-logloss:0.14244	train-aucpr:0.99257	es-logloss:0.14235	es-aucpr:0.99268
+[100]	train-logloss:0.00290	train-aucpr:0.99959	es-logloss:0.00305	es-aucpr:0.99949
+[200]	train-logloss:0.00246	train-aucpr:0.99970	es-logloss:0.00285	es-aucpr:0.99955
+[300]	train-logloss:0.00217	train-aucpr:0.99977	es-logloss:0.00280	es-aucpr:0.99957
+[400]	train-logloss:0.00193	train-aucpr:0.99983	es-logloss:0.00277	es-aucpr:0.99958
+[488]	train-logloss:0.00177	train-aucpr:0.99987	es-logloss:0.00277	es-aucpr:0.99958
+[   641s rss 1.4GB] trained on GPU: best iteration 428
+[   641s rss 1.4GB] top gain: nn_p=9724, score_gap=5201, rq=2909, num_absdiff=607, nm_g2_cin=582, rf_ad_tset=377, sib_same_num=360, core_g2_cin=356, sib_same_nums=289, num_missing=97, sib_same_num_frac=94, core_tok_jac=67, num_first_eq=58, qs=50, nm_g3_cin=48
+[  1536s rss 4.0GB] threshold curve:
+  thr=0.200  F0.5=0.9799  single=0.9394  matched=0.9822  P=0.9876  R=0.9726
+  thr=0.225  F0.5=0.9804  single=0.9402  matched=0.9827  P=0.9883  R=0.9725
+  thr=0.250  F0.5=0.9809  single=0.9419  matched=0.9831  P=0.9889  R=0.9722
+  thr=0.275  F0.5=0.9812  single=0.9444  matched=0.9833  P=0.9895  R=0.9718
+  thr=0.300  F0.5=0.9815  single=0.9477  matched=0.9834  P=0.9901  R=0.9715
+  thr=0.325  F0.5=0.9819  single=0.9527  matched=0.9836  P=0.9907  R=0.9711
+  thr=0.350  F0.5=0.9821  single=0.9552  matched=0.9836  P=0.9910  R=0.9708
+  thr=0.375  F0.5=0.9825  single=0.9577  matched=0.9839  P=0.9916  R=0.9705
+  thr=0.400  F0.5=0.9828  single=0.9593  matched=0.9841  P=0.9920  R=0.9701
+  thr=0.425  F0.5=0.9830  single=0.9602  matched=0.9843  P=0.9926  R=0.9697
+  thr=0.450  F0.5=0.9832  single=0.9610  matched=0.9845  P=0.9930  R=0.9692
+  thr=0.475  F0.5=0.9834  single=0.9627  matched=0.9846  P=0.9935  R=0.9688
+  thr=0.500  F0.5=0.9835  single=0.9660  matched=0.9846  P=0.9938  R=0.9683
+  thr=0.525  F0.5=0.9836  single=0.9660  matched=0.9846  P=0.9942  R=0.9679
+  thr=0.550  F0.5=0.9839  single=0.9693  matched=0.9847  P=0.9946  R=0.9675
+  thr=0.575  F0.5=0.9840  single=0.9726  matched=0.9847  P=0.9950  R=0.9669
+  thr=0.600  F0.5=0.9842  single=0.9726  matched=0.9849  P=0.9954  R=0.9664
+  thr=0.625  F0.5=0.9843  single=0.9726  matched=0.9849  P=0.9958  R=0.9658
+  thr=0.650  F0.5=0.9841  single=0.9726  matched=0.9848  P=0.9960  R=0.9651
+  thr=0.675  F0.5=0.9842  single=0.9743  matched=0.9848  P=0.9963  R=0.9646
+  thr=0.700  F0.5=0.9842  single=0.9751  matched=0.9847  P=0.9966  R=0.9640
+  thr=0.725  F0.5=0.9843  single=0.9759  matched=0.9848  P=0.9969  R=0.9635
+  thr=0.750  F0.5=0.9844  single=0.9776  matched=0.9848  P=0.9971  R=0.9628
+  thr=0.775  F0.5=0.9844  single=0.9793  matched=0.9847  P=0.9974  R=0.9622
+  thr=0.800  F0.5=0.9844  single=0.9826  matched=0.9845  P=0.9977  R=0.9616
+  thr=0.825  F0.5=0.9843  single=0.9851  matched=0.9842  P=0.9978  R=0.9607
+  thr=0.850  F0.5=0.9840  single=0.9867  matched=0.9838  P=0.9980  R=0.9597
+  thr=0.875  F0.5=0.9836  single=0.9884  matched=0.9833  P=0.9981  R=0.9584
+  thr=0.900  F0.5=0.9831  single=0.9900  matched=0.9827  P=0.9984  R=0.9567
+  thr=0.925  F0.5=0.9821  single=0.9900  matched=0.9817  P=0.9986  R=0.9542
+  thr=0.950  F0.5=0.9805  single=0.9917  matched=0.9799  P=0.9989  R=0.9498
+[  1536s rss 4.0GB] BEST thr=0.8  macro F0.5=0.9844  (candidate-set ceiling 0.9942)
+[  1536s rss 4.0GB] saved model -> artifacts/er/model_v4
+
+==================================================================================
+FILE: v4_predict.log    (last modified 2026-09-27 05:47)
+STEP 3: test-set prediction (threshold 0.75) + official validator
+==================================================================================
+[     0s rss 0.6GB] model best_iteration=428  threshold=0.75
+[   720s rss 2.7GB] scored part 1/10: 13,389,874 pairs
+[  1703s rss 2.7GB] scored part 2/10: 13,386,490 pairs
+[  2610s rss 2.7GB] scored part 3/10: 13,387,599 pairs
+[  3462s rss 2.7GB] scored part 4/10: 13,389,123 pairs
+[  4322s rss 2.7GB] scored part 5/10: 13,391,967 pairs
+[  5252s rss 2.6GB] scored part 6/10: 13,398,978 pairs
+[  6185s rss 2.6GB] scored part 7/10: 13,398,394 pairs
+[  7096s rss 2.6GB] scored part 8/10: 13,401,957 pairs
+[  8014s rss 2.7GB] scored part 9/10: 13,405,787 pairs
+[  8910s rss 2.5GB] scored part 10/10: 12,997,191 pairs
+[  8966s rss 0.4GB] wrote matching_results.tsv
+[  9014s rss 1.9GB] wrote candidate_pairs.tsv
+[  9015s rss 1.8GB] S1 rows 1,732,544; with matches 1,633,442 (94.3%); matched ids 5,875,951
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (99102 empty, 1633442 non-empty).
+  candidate_pairs.tsv: 1732544 rows (9 empty, 1732535 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  9321s rss 0.0GB] validator exit code 0

@@ -1,0 +1,904 @@
+ML Challenge 2026 - Business Entity Resolution: all run logs (branch er-v2)
+Generated: 2026-09-27 11:10   Source: artifacts/er/logs/   Order: chronological
+Validation = 22,224 held-out Source-1 entities (id % 100 == 0); metric = macro F0.5
+Summary: v1 0.9678 | v2 0.9775 (LB 0.970) | v3 0.9804 | v4 0.9844 (LB 0.968) | v5 0.9849
+
+==================================================================================
+FILE: probe.out    (last modified 2026-09-26 20:35)
+==================================================================================
+gt pairs in sample 222385
+cap=100 index rows 14,431,535 build 24s
+  cands 5,450,719 (18.2/target) 9s
+  R@1=0.8806  R@2=0.9057  R@3=0.9162  R@5=0.9279  R@10=0.9392  R@20=0.9495
+shape: (6, 6)
+┌───────┬─────────┬─────────┬────────┬──────────┬──────────┐
+│ cty   ┆ n_indic ┆ ad_null ┆ len    ┆ r10      ┆ r1       │
+│ ---   ┆ ---     ┆ ---     ┆ ---    ┆ ---      ┆ ---      │
+│ str   ┆ i8      ┆ i8      ┆ u32    ┆ f64      ┆ f64      │
+╞═══════╪═════════╪═════════╪════════╪══════════╪══════════╡
+│ us    ┆ 0       ┆ 0       ┆ 126905 ┆ 0.957622 ┆ 0.898231 │
+│ india ┆ 0       ┆ 0       ┆ 69507  ┆ 0.958191 ┆ 0.916555 │
+│ india ┆ 1       ┆ 0       ┆ 16167  ┆ 0.887178 ┆ 0.847281 │
+│ us    ┆ 0       ┆ 1       ┆ 6331   ┆ 0.641447 ┆ 0.447165 │
+│ india ┆ 0       ┆ 1       ┆ 3442   ┆ 0.674317 ┆ 0.467751 │
+│ india ┆ 1       ┆ 1       ┆ 33     ┆ 0.363636 ┆ 0.181818 │
+└───────┴─────────┴─────────┴────────┴──────────┴──────────┘
+cap=1000 index rows 21,847,176 build 20s
+  cands 5,924,661 (19.7/target) 321s
+  R@1=0.9220  R@2=0.9408  R@3=0.9484  R@5=0.9561  R@10=0.9631  R@20=0.9693
+shape: (6, 6)
+┌───────┬─────────┬─────────┬────────┬──────────┬──────────┐
+│ cty   ┆ n_indic ┆ ad_null ┆ len    ┆ r10      ┆ r1       │
+│ ---   ┆ ---     ┆ ---     ┆ ---    ┆ ---      ┆ ---      │
+│ str   ┆ i8      ┆ i8      ┆ u32    ┆ f64      ┆ f64      │
+╞═══════╪═════════╪═════════╪════════╪══════════╪══════════╡
+│ us    ┆ 0       ┆ 0       ┆ 126905 ┆ 0.984477 ┆ 0.950435 │
+│ india ┆ 0       ┆ 0       ┆ 69507  ┆ 0.971025 ┆ 0.940064 │
+│ india ┆ 1       ┆ 0       ┆ 16167  ┆ 0.935919 ┆ 0.890703 │
+│ us    ┆ 0       ┆ 1       ┆ 6331   ┆ 0.673669 ┆ 0.481441 │
+│ india ┆ 0       ┆ 1       ┆ 3442   ┆ 0.683905 ┆ 0.471528 │
+│ india ┆ 1       ┆ 1       ┆ 33     ┆ 0.242424 ┆ 0.151515 │
+└───────┴─────────┴─────────┴────────┴──────────┴──────────┘
+
+==================================================================================
+FILE: probe2.out    (last modified 2026-09-26 20:37)
+==================================================================================
+gt pairs in sample 73822
+cap=300 index rows 17,673,039 build 19s
+  cands 1,935,816 (19.4/target) 15s
+  R@1=0.9042  R@2=0.9256  R@3=0.9338  R@5=0.9429  R@10=0.9514  R@20=0.9591
+shape: (6, 6)
+┌───────┬─────────┬─────────┬───────┬──────────┬──────────┐
+│ cty   ┆ n_indic ┆ ad_null ┆ len   ┆ r10      ┆ r1       │
+│ ---   ┆ ---     ┆ ---     ┆ ---   ┆ ---      ┆ ---      │
+│ str   ┆ i8      ┆ i8      ┆ u32   ┆ f64      ┆ f64      │
+╞═══════╪═════════╪═════════╪═══════╪══════════╪══════════╡
+│ us    ┆ 0       ┆ 0       ┆ 42095 ┆ 0.971731 ┆ 0.928305 │
+│ india ┆ 0       ┆ 0       ┆ 23129 ┆ 0.964374 ┆ 0.931212 │
+│ india ┆ 1       ┆ 0       ┆ 5280  ┆ 0.916477 ┆ 0.878788 │
+│ us    ┆ 0       ┆ 1       ┆ 2205  ┆ 0.652608 ┆ 0.452154 │
+│ india ┆ 0       ┆ 1       ┆ 1110  ┆ 0.671171 ┆ 0.45045  │
+│ india ┆ 1       ┆ 1       ┆ 3     ┆ 0.333333 ┆ 0.333333 │
+└───────┴─────────┴─────────┴───────┴──────────┴──────────┘
+cap=500 index rows 19,426,794 build 18s
+  cands 1,958,938 (19.6/target) 22s
+  R@1=0.9132  R@2=0.9332  R@3=0.9414  R@5=0.9495  R@10=0.9568  R@20=0.9639
+shape: (6, 6)
+┌───────┬─────────┬─────────┬───────┬──────────┬──────────┐
+│ cty   ┆ n_indic ┆ ad_null ┆ len   ┆ r10      ┆ r1       │
+│ ---   ┆ ---     ┆ ---     ┆ ---   ┆ ---      ┆ ---      │
+│ str   ┆ i8      ┆ i8      ┆ u32   ┆ f64      ┆ f64      │
+╞═══════╪═════════╪═════════╪═══════╪══════════╪══════════╡
+│ us    ┆ 0       ┆ 0       ┆ 42095 ┆ 0.978073 ┆ 0.940302 │
+│ india ┆ 0       ┆ 0       ┆ 23129 ┆ 0.967443 ┆ 0.933503 │
+│ india ┆ 1       ┆ 0       ┆ 5280  ┆ 0.927083 ┆ 0.887689 │
+│ us    ┆ 0       ┆ 1       ┆ 2205  ┆ 0.658957 ┆ 0.477551 │
+│ india ┆ 0       ┆ 1       ┆ 1110  ┆ 0.661261 ┆ 0.451351 │
+│ india ┆ 1       ┆ 1       ┆ 3     ┆ 0.666667 ┆ 0.333333 │
+└───────┴─────────┴─────────┴───────┴──────────┴──────────┘
+
+==================================================================================
+FILE: block_train.log    (last modified 2026-09-26 21:02)
+==================================================================================
+index: 19,426,794 keys (cap=500)  14s  rss 2.8GB
+  part 0: targets 0+1,000,000 -> 9,857,247 pairs  24s  rss 1.7GB
+  part 1: targets 1,000,000+1,000,000 -> 9,855,381 pairs  34s  rss 1.7GB
+  part 2: targets 2,000,000+1,000,000 -> 9,856,560 pairs  44s  rss 1.7GB
+  part 3: targets 3,000,000+1,000,000 -> 9,856,026 pairs  54s  rss 1.7GB
+  part 4: targets 4,000,000+1,000,000 -> 9,855,123 pairs  63s  rss 1.7GB
+  part 5: targets 5,000,000+1,000,000 -> 9,841,949 pairs  73s  rss 2.1GB
+  part 6: targets 6,000,000+1,000,000 -> 9,839,568 pairs  83s  rss 1.7GB
+  part 7: targets 7,000,000+1,000,000 -> 9,841,768 pairs  93s  rss 1.8GB
+  part 8: targets 8,000,000+1,000,000 -> 9,839,610 pairs  102s  rss 2.1GB
+  part 9: targets 9,000,000+1,000,000 -> 9,842,285 pairs  112s  rss 1.9GB
+  part 10: targets 10,000,000+320,219 -> 3,151,697 pairs  115s  rss 1.5GB
+DONE 101,637,214 candidate pairs for 10,320,219 targets -> artifacts\er\train_cands  123s
+
+==================================================================================
+FILE: block_test.log    (last modified 2026-09-26 21:04)
+==================================================================================
+index: 16,287,139 keys (cap=500)  11s  rss 2.2GB
+  part 0: targets 0+1,000,000 -> 9,897,991 pairs  21s  rss 1.7GB
+  part 1: targets 1,000,000+1,000,000 -> 9,895,274 pairs  32s  rss 2.1GB
+  part 2: targets 2,000,000+1,000,000 -> 9,896,690 pairs  42s  rss 2.1GB
+  part 3: targets 3,000,000+1,000,000 -> 9,896,471 pairs  53s  rss 2.1GB
+  part 4: targets 4,000,000+1,000,000 -> 9,894,680 pairs  63s  rss 2.1GB
+  part 5: targets 5,000,000+1,000,000 -> 9,877,048 pairs  73s  rss 2.1GB
+  part 6: targets 6,000,000+1,000,000 -> 9,875,215 pairs  83s  rss 2.1GB
+  part 7: targets 7,000,000+1,000,000 -> 9,877,204 pairs  93s  rss 2.1GB
+  part 8: targets 8,000,000+1,000,000 -> 9,879,067 pairs  103s  rss 2.1GB
+  part 9: targets 9,000,000+969,589 -> 9,579,043 pairs  114s  rss 2.1GB
+DONE 98,568,683 candidate pairs for 9,969,589 targets -> artifacts\er\test_cands  121s
+
+==================================================================================
+FILE: train.log    (last modified 2026-09-26 21:12)
+==================================================================================
+[     4s rss 1.9GB] val S1 22,224 | val targets 974,781 | train targets 500,000 | es targets 100,000
+[    82s rss 2.0GB] features[train]: 4,918,004 pairs
+[    95s rss 2.3GB] features[es]: 984,139 pairs
+[   106s rss 3.1GB] train rows 4,918,004  es rows 984,139
+[0]	train-logloss:0.18817	train-aucpr:0.98867	es-logloss:0.18839	es-aucpr:0.98785
+[100]	train-logloss:0.00783	train-aucpr:0.99833	es-logloss:0.00880	es-aucpr:0.99777
+[200]	train-logloss:0.00610	train-aucpr:0.99896	es-logloss:0.00757	es-aucpr:0.99828
+[300]	train-logloss:0.00525	train-aucpr:0.99926	es-logloss:0.00719	es-aucpr:0.99844
+[400]	train-logloss:0.00467	train-aucpr:0.99944	es-logloss:0.00702	es-aucpr:0.99851
+[500]	train-logloss:0.00416	train-aucpr:0.99958	es-logloss:0.00692	es-aucpr:0.99855
+[600]	train-logloss:0.00377	train-aucpr:0.99969	es-logloss:0.00685	es-aucpr:0.99857
+[700]	train-logloss:0.00342	train-aucpr:0.99976	es-logloss:0.00683	es-aucpr:0.99858
+[800]	train-logloss:0.00311	train-aucpr:0.99982	es-logloss:0.00681	es-aucpr:0.99858
+[900]	train-logloss:0.00283	train-aucpr:0.99987	es-logloss:0.00681	es-aucpr:0.99859
+[960]	train-logloss:0.00270	train-aucpr:0.99989	es-logloss:0.00682	es-aucpr:0.99859
+[   258s rss 2.1GB] trained on GPU: best iteration 900
+[   258s rss 2.1GB] top gain: score_gap=2732, rk=1691, score_rel=570, ad_null=270, num_jac=259, nm_g2_cin=213, rf_ad_tset=158, num_missing=113, core_g2_cin=68, n_indic=68, n_domain=59, num_first_eq=51, ad_tok_jac=46, nm_g2_jac=40, ad_tok_wcov_t=40
+[   416s rss 2.5GB] threshold curve:
+  thr=0.200  F0.5=0.9595  single=0.9062  matched=0.9626  P=0.9753  R=0.9460
+  thr=0.225  F0.5=0.9603  single=0.9071  matched=0.9634  P=0.9767  R=0.9454
+  thr=0.250  F0.5=0.9615  single=0.9154  matched=0.9642  P=0.9783  R=0.9449
+  thr=0.275  F0.5=0.9626  single=0.9237  matched=0.9648  P=0.9797  R=0.9443
+  thr=0.300  F0.5=0.9632  single=0.9261  matched=0.9654  P=0.9810  R=0.9435
+  thr=0.325  F0.5=0.9639  single=0.9303  matched=0.9658  P=0.9820  R=0.9429
+  thr=0.350  F0.5=0.9645  single=0.9336  matched=0.9663  P=0.9830  R=0.9422
+  thr=0.375  F0.5=0.9650  single=0.9369  matched=0.9666  P=0.9838  R=0.9415
+  thr=0.400  F0.5=0.9655  single=0.9394  matched=0.9670  P=0.9849  R=0.9409
+  thr=0.425  F0.5=0.9658  single=0.9411  matched=0.9673  P=0.9857  R=0.9400
+  thr=0.450  F0.5=0.9660  single=0.9427  matched=0.9673  P=0.9863  R=0.9392
+  thr=0.475  F0.5=0.9661  single=0.9452  matched=0.9673  P=0.9871  R=0.9383
+  thr=0.500  F0.5=0.9663  single=0.9469  matched=0.9674  P=0.9879  R=0.9374
+  thr=0.525  F0.5=0.9667  single=0.9519  matched=0.9676  P=0.9884  R=0.9369
+  thr=0.550  F0.5=0.9671  single=0.9552  matched=0.9678  P=0.9892  R=0.9362
+  thr=0.575  F0.5=0.9671  single=0.9560  matched=0.9677  P=0.9897  R=0.9350
+  thr=0.600  F0.5=0.9673  single=0.9577  matched=0.9679  P=0.9904  R=0.9341
+  thr=0.625  F0.5=0.9676  single=0.9618  matched=0.9679  P=0.9911  R=0.9331
+  thr=0.650  F0.5=0.9675  single=0.9627  matched=0.9678  P=0.9916  R=0.9322
+  thr=0.675  F0.5=0.9676  single=0.9643  matched=0.9678  P=0.9923  R=0.9312
+  thr=0.700  F0.5=0.9677  single=0.9685  matched=0.9676  P=0.9928  R=0.9302
+  thr=0.725  F0.5=0.9678  single=0.9710  matched=0.9676  P=0.9933  R=0.9291
+  thr=0.750  F0.5=0.9678  single=0.9734  matched=0.9675  P=0.9939  R=0.9278
+  thr=0.775  F0.5=0.9678  single=0.9759  matched=0.9673  P=0.9944  R=0.9266
+  thr=0.800  F0.5=0.9674  single=0.9768  matched=0.9669  P=0.9948  R=0.9249
+  thr=0.825  F0.5=0.9669  single=0.9776  matched=0.9663  P=0.9953  R=0.9228
+  thr=0.850  F0.5=0.9663  single=0.9817  matched=0.9654  P=0.9958  R=0.9206
+  thr=0.875  F0.5=0.9651  single=0.9817  matched=0.9641  P=0.9962  R=0.9174
+  thr=0.900  F0.5=0.9640  single=0.9842  matched=0.9628  P=0.9967  R=0.9138
+  thr=0.925  F0.5=0.9622  single=0.9876  matched=0.9607  P=0.9973  R=0.9081
+  thr=0.950  F0.5=0.9586  single=0.9884  matched=0.9569  P=0.9978  R=0.8990
+[   416s rss 2.5GB] BEST thr=0.75  macro F0.5=0.9678  (candidate-set ceiling 0.9847)
+[   416s rss 2.5GB] saved model -> artifacts\er\model
+
+==================================================================================
+FILE: predict.log    (last modified 2026-09-26 21:30)
+==================================================================================
+[     1s rss 0.6GB] model best_iteration=900  threshold=0.75
+[    92s rss 2.5GB] scored part 1/10: 9,897,991 pairs
+[   181s rss 2.5GB] scored part 2/10: 9,895,274 pairs
+[   275s rss 2.5GB] scored part 3/10: 9,896,690 pairs
+[   365s rss 2.7GB] scored part 4/10: 9,896,471 pairs
+[   456s rss 2.5GB] scored part 5/10: 9,894,680 pairs
+[   550s rss 2.5GB] scored part 6/10: 9,877,048 pairs
+[   643s rss 1.9GB] scored part 7/10: 9,875,215 pairs
+[   733s rss 2.1GB] scored part 8/10: 9,877,204 pairs
+[   825s rss 1.7GB] scored part 9/10: 9,879,067 pairs
+[   913s rss 1.5GB] scored part 10/10: 9,579,043 pairs
+[   933s rss 1.2GB] wrote matching_results.tsv
+[   959s rss 2.3GB] wrote candidate_pairs.tsv
+[   959s rss 2.4GB] S1 rows 1,732,544; with matches 1,623,657 (93.7%); matched ids 5,620,397
+ML Challenge 2026 — submission validator
+  test dir: student_resource/dataset/test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (108887 empty, 1623657 non-empty).
+  candidate_pairs.tsv: 1732544 rows (1859 empty, 1730685 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  1107s rss 0.0GB] validator exit code 0
+
+==================================================================================
+FILE: v2_prepare.log    (last modified 2026-09-26 21:49)
+==================================================================================
+  train/s1: 2,206,821 rows -> artifacts\er\train_s1.parquet (118 MB)  8s
+  train/tg: 10,320,219 rows -> artifacts\er\train_tg.parquet (562 MB)  53s
+  test/s1: 1,732,544 rows -> artifacts\er\test_s1.parquet (92 MB)  7s
+  test/tg: 9,969,589 rows -> artifacts\er\test_tg.parquet (548 MB)  56s
+
+==================================================================================
+FILE: v2_block_train.log    (last modified 2026-09-26 22:07)
+==================================================================================
+index: 19,426,794 keys (cap=500)  15s  rss 2.6GB
+  part 0: targets 0+1,000,000 -> 13,209,703 pairs  103s  rss 2.2GB
+  part 1: targets 1,000,000+1,000,000 -> 13,208,961 pairs  192s  rss 2.2GB
+  part 2: targets 2,000,000+1,000,000 -> 13,208,356 pairs  306s  rss 2.3GB
+  part 3: targets 3,000,000+1,000,000 -> 13,207,340 pairs  398s  rss 2.4GB
+  part 4: targets 4,000,000+1,000,000 -> 13,205,755 pairs  543s  rss 2.2GB
+  part 5: targets 5,000,000+1,000,000 -> 13,211,860 pairs  636s  rss 2.1GB
+  part 6: targets 6,000,000+1,000,000 -> 13,208,261 pairs  735s  rss 2.2GB
+  part 7: targets 7,000,000+1,000,000 -> 13,215,073 pairs  846s  rss 1.9GB
+  part 8: targets 8,000,000+1,000,000 -> 13,208,885 pairs  936s  rss 1.8GB
+  part 9: targets 9,000,000+1,000,000 -> 13,213,354 pairs  1026s  rss 1.7GB
+  part 10: targets 10,000,000+320,219 -> 4,230,324 pairs  1055s  rss 1.4GB
+DONE 136,327,872 candidate pairs for 10,320,219 targets -> artifacts\er\train_cands  1069s
+
+==================================================================================
+FILE: v2_block_test.log    (last modified 2026-09-26 22:22)
+==================================================================================
+index: 16,287,138 keys (cap=500)  14s  rss 2.2GB
+  part 0: targets 0+1,000,000 -> 13,389,874 pairs  103s  rss 2.1GB
+  part 1: targets 1,000,000+1,000,000 -> 13,386,490 pairs  194s  rss 2.1GB
+  part 2: targets 2,000,000+1,000,000 -> 13,387,599 pairs  287s  rss 2.1GB
+  part 3: targets 3,000,000+1,000,000 -> 13,389,123 pairs  381s  rss 2.1GB
+  part 4: targets 4,000,000+1,000,000 -> 13,391,967 pairs  470s  rss 2.1GB
+  part 5: targets 5,000,000+1,000,000 -> 13,398,978 pairs  560s  rss 2.3GB
+  part 6: targets 6,000,000+1,000,000 -> 13,398,394 pairs  649s  rss 2.2GB
+  part 7: targets 7,000,000+1,000,000 -> 13,401,957 pairs  737s  rss 2.2GB
+  part 8: targets 8,000,000+1,000,000 -> 13,405,787 pairs  825s  rss 2.0GB
+  part 9: targets 9,000,000+969,589 -> 12,997,191 pairs  911s  rss 1.8GB
+DONE 133,547,360 candidate pairs for 9,969,589 targets -> artifacts\er\test_cands  922s
+
+==================================================================================
+FILE: v2_train.log    (last modified 2026-09-26 23:28)
+==================================================================================
+[     8s rss 2.2GB] val S1 22,224 | val targets 1,283,072 | train targets 1,200,000 | es targets 100,000
+[    29s rss 4.5GB] train rows 10,525,951  es rows 1,315,655
+[0]	train-logloss:0.14346	train-aucpr:0.98785	es-logloss:0.14366	es-aucpr:0.98818
+[100]	train-logloss:0.00653	train-aucpr:0.99799	es-logloss:0.00697	es-aucpr:0.99757
+[200]	train-logloss:0.00510	train-aucpr:0.99875	es-logloss:0.00589	es-aucpr:0.99817
+[300]	train-logloss:0.00442	train-aucpr:0.99907	es-logloss:0.00553	es-aucpr:0.99837
+[400]	train-logloss:0.00400	train-aucpr:0.99926	es-logloss:0.00535	es-aucpr:0.99845
+[500]	train-logloss:0.00369	train-aucpr:0.99939	es-logloss:0.00527	es-aucpr:0.99850
+[600]	train-logloss:0.00338	train-aucpr:0.99951	es-logloss:0.00521	es-aucpr:0.99853
+[700]	train-logloss:0.00312	train-aucpr:0.99960	es-logloss:0.00517	es-aucpr:0.99854
+[800]	train-logloss:0.00289	train-aucpr:0.99968	es-logloss:0.00515	es-aucpr:0.99857
+[900]	train-logloss:0.00270	train-aucpr:0.99974	es-logloss:0.00513	es-aucpr:0.99857
+[1000]	train-logloss:0.00251	train-aucpr:0.99979	es-logloss:0.00513	es-aucpr:0.99858
+[1100]	train-logloss:0.00235	train-aucpr:0.99983	es-logloss:0.00513	es-aucpr:0.99858
+[1195]	train-logloss:0.00220	train-aucpr:0.99986	es-logloss:0.00513	es-aucpr:0.99858
+[  2012s rss 0.3GB] trained on GPU: best iteration 1135
+[  2012s rss 0.3GB] top gain: rq=5133, score_gap=2420, num_first_eq=254, rf_ad_tset=244, nm_g2_cin=233, rk=175, num_missing=172, ad_null=145, num_jac=93, score_rel=91, core_tok_jac=68, core_eq=66, n_indic=56, core_g2_cin=51, sq_eq=45
+[  2387s rss 3.4GB] threshold curve:
+  thr=0.200  F0.5=0.9691  single=0.9087  matched=0.9725  P=0.9757  R=0.9677
+  thr=0.225  F0.5=0.9701  single=0.9129  matched=0.9734  P=0.9773  R=0.9670
+  thr=0.250  F0.5=0.9713  single=0.9195  matched=0.9742  P=0.9789  R=0.9665
+  thr=0.275  F0.5=0.9718  single=0.9203  matched=0.9748  P=0.9800  R=0.9658
+  thr=0.300  F0.5=0.9727  single=0.9245  matched=0.9754  P=0.9814  R=0.9651
+  thr=0.325  F0.5=0.9735  single=0.9295  matched=0.9761  P=0.9826  R=0.9645
+  thr=0.350  F0.5=0.9741  single=0.9336  matched=0.9765  P=0.9835  R=0.9639
+  thr=0.375  F0.5=0.9748  single=0.9369  matched=0.9770  P=0.9845  R=0.9633
+  thr=0.400  F0.5=0.9752  single=0.9378  matched=0.9774  P=0.9854  R=0.9626
+  thr=0.425  F0.5=0.9755  single=0.9411  matched=0.9774  P=0.9863  R=0.9619
+  thr=0.450  F0.5=0.9758  single=0.9436  matched=0.9777  P=0.9871  R=0.9611
+  thr=0.475  F0.5=0.9762  single=0.9461  matched=0.9779  P=0.9878  R=0.9604
+  thr=0.500  F0.5=0.9766  single=0.9510  matched=0.9781  P=0.9885  R=0.9596
+  thr=0.525  F0.5=0.9772  single=0.9560  matched=0.9784  P=0.9893  R=0.9590
+  thr=0.550  F0.5=0.9774  single=0.9593  matched=0.9785  P=0.9900  R=0.9581
+  thr=0.575  F0.5=0.9774  single=0.9610  matched=0.9783  P=0.9905  R=0.9571
+  thr=0.600  F0.5=0.9773  single=0.9627  matched=0.9781  P=0.9910  R=0.9562
+  thr=0.625  F0.5=0.9775  single=0.9676  matched=0.9781  P=0.9915  R=0.9554
+  thr=0.650  F0.5=0.9775  single=0.9676  matched=0.9781  P=0.9920  R=0.9543
+  thr=0.675  F0.5=0.9775  single=0.9701  matched=0.9779  P=0.9925  R=0.9531
+  thr=0.700  F0.5=0.9774  single=0.9701  matched=0.9778  P=0.9930  R=0.9521
+  thr=0.725  F0.5=0.9775  single=0.9718  matched=0.9778  P=0.9937  R=0.9509
+  thr=0.750  F0.5=0.9773  single=0.9734  matched=0.9775  P=0.9942  R=0.9494
+  thr=0.775  F0.5=0.9770  single=0.9759  matched=0.9771  P=0.9948  R=0.9479
+  thr=0.800  F0.5=0.9767  single=0.9784  matched=0.9766  P=0.9951  R=0.9464
+  thr=0.825  F0.5=0.9761  single=0.9801  matched=0.9758  P=0.9956  R=0.9443
+  thr=0.850  F0.5=0.9758  single=0.9817  matched=0.9755  P=0.9960  R=0.9423
+  thr=0.875  F0.5=0.9750  single=0.9826  matched=0.9745  P=0.9964  R=0.9392
+  thr=0.900  F0.5=0.9739  single=0.9851  matched=0.9733  P=0.9970  R=0.9356
+  thr=0.925  F0.5=0.9720  single=0.9876  matched=0.9712  P=0.9974  R=0.9304
+  thr=0.950  F0.5=0.9689  single=0.9892  matched=0.9677  P=0.9981  R=0.9211
+[  2387s rss 3.4GB] BEST thr=0.65  macro F0.5=0.9775  (candidate-set ceiling 0.9942)
+[  2388s rss 3.4GB] saved model -> artifacts\er\model
+
+==================================================================================
+FILE: v2_predict.log    (last modified 2026-09-26 23:58)
+==================================================================================
+[     1s rss 0.6GB] model best_iteration=1135  threshold=0.7
+[   158s rss 3.2GB] scored part 1/10: 13,389,874 pairs
+[   291s rss 2.5GB] scored part 2/10: 13,386,490 pairs
+[   430s rss 2.4GB] scored part 3/10: 13,387,599 pairs
+[   564s rss 2.2GB] scored part 4/10: 13,389,123 pairs
+[   696s rss 2.0GB] scored part 5/10: 13,391,967 pairs
+[   832s rss 1.9GB] scored part 6/10: 13,398,978 pairs
+[   966s rss 1.9GB] scored part 7/10: 13,398,394 pairs
+[  1098s rss 1.9GB] scored part 8/10: 13,401,957 pairs
+[  1232s rss 1.9GB] scored part 9/10: 13,405,787 pairs
+[  1353s rss 1.8GB] scored part 10/10: 12,997,191 pairs
+[  1395s rss 0.3GB] wrote matching_results.tsv
+[  1430s rss 2.3GB] wrote candidate_pairs.tsv
+[  1431s rss 1.6GB] S1 rows 1,732,544; with matches 1,632,905 (94.2%); matched ids 5,797,486
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (99639 empty, 1632905 non-empty).
+  candidate_pairs.tsv: 1732544 rows (9 empty, 1732535 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  1738s rss 0.0GB] validator exit code 0
+
+==================================================================================
+FILE: v3_train.log    (last modified 2026-09-27 01:55)
+==================================================================================
+[     7s rss 3.0GB] val S1 22,224 | val targets 1,283,072 | train targets 800,000 | es targets 100,000
+[   208s rss 3.1GB] features[train]: 10,525,951 pairs
+[   226s rss 3.1GB] features[es]: 1,314,859 pairs
+[   252s rss 4.3GB] train rows 10,525,951  es rows 1,314,859
+[0]	train-logloss:0.14235	train-aucpr:0.99287	es-logloss:0.14280	es-aucpr:0.99275
+[100]	train-logloss:0.00499	train-aucpr:0.99883	es-logloss:0.00558	es-aucpr:0.99844
+[200]	train-logloss:0.00376	train-aucpr:0.99932	es-logloss:0.00466	es-aucpr:0.99886
+[300]	train-logloss:0.00324	train-aucpr:0.99951	es-logloss:0.00438	es-aucpr:0.99899
+[400]	train-logloss:0.00288	train-aucpr:0.99963	es-logloss:0.00424	es-aucpr:0.99905
+[500]	train-logloss:0.00260	train-aucpr:0.99971	es-logloss:0.00417	es-aucpr:0.99908
+[600]	train-logloss:0.00236	train-aucpr:0.99978	es-logloss:0.00413	es-aucpr:0.99910
+[700]	train-logloss:0.00215	train-aucpr:0.99983	es-logloss:0.00410	es-aucpr:0.99911
+[800]	train-logloss:0.00195	train-aucpr:0.99987	es-logloss:0.00409	es-aucpr:0.99912
+[900]	train-logloss:0.00179	train-aucpr:0.99990	es-logloss:0.00408	es-aucpr:0.99912
+[1000]	train-logloss:0.00164	train-aucpr:0.99993	es-logloss:0.00408	es-aucpr:0.99912
+[1100]	train-logloss:0.00151	train-aucpr:0.99995	es-logloss:0.00408	es-aucpr:0.99912
+[1172]	train-logloss:0.00141	train-aucpr:0.99996	es-logloss:0.00409	es-aucpr:0.99912
+[  3791s rss 0.1GB] trained on GPU: best iteration 1112
+[  3791s rss 0.1GB] top gain: rq=4785, score_gap=2836, num_absdiff=306, nm_g2_cin=210, rk=187, sib_same_num=179, rf_ad_tset=165, sib_same_nums=158, ad_null=117, core_g2_cin=99, score_rel=90, sib_same_num_frac=77, core_tok_jac=75, num_missing=63, num_jac=63
+[  4160s rss 3.9GB] threshold curve:
+  thr=0.200  F0.5=0.9731  single=0.8988  matched=0.9774  P=0.9821  R=0.9703
+  thr=0.225  F0.5=0.9737  single=0.9037  matched=0.9777  P=0.9830  R=0.9699
+  thr=0.250  F0.5=0.9743  single=0.9071  matched=0.9782  P=0.9840  R=0.9695
+  thr=0.275  F0.5=0.9749  single=0.9112  matched=0.9786  P=0.9848  R=0.9692
+  thr=0.300  F0.5=0.9754  single=0.9145  matched=0.9789  P=0.9856  R=0.9688
+  thr=0.325  F0.5=0.9759  single=0.9187  matched=0.9791  P=0.9863  R=0.9683
+  thr=0.350  F0.5=0.9764  single=0.9245  matched=0.9793  P=0.9870  R=0.9679
+  thr=0.375  F0.5=0.9768  single=0.9270  matched=0.9796  P=0.9877  R=0.9673
+  thr=0.400  F0.5=0.9772  single=0.9320  matched=0.9798  P=0.9884  R=0.9669
+  thr=0.425  F0.5=0.9779  single=0.9386  matched=0.9801  P=0.9892  R=0.9664
+  thr=0.450  F0.5=0.9782  single=0.9411  matched=0.9803  P=0.9897  R=0.9658
+  thr=0.475  F0.5=0.9784  single=0.9436  matched=0.9804  P=0.9902  R=0.9652
+  thr=0.500  F0.5=0.9789  single=0.9494  matched=0.9806  P=0.9908  R=0.9647
+  thr=0.525  F0.5=0.9792  single=0.9544  matched=0.9806  P=0.9913  R=0.9641
+  thr=0.550  F0.5=0.9794  single=0.9577  matched=0.9806  P=0.9917  R=0.9636
+  thr=0.575  F0.5=0.9797  single=0.9610  matched=0.9808  P=0.9924  R=0.9629
+  thr=0.600  F0.5=0.9799  single=0.9643  matched=0.9808  P=0.9929  R=0.9623
+  thr=0.625  F0.5=0.9801  single=0.9651  matched=0.9810  P=0.9934  R=0.9616
+  thr=0.650  F0.5=0.9802  single=0.9668  matched=0.9810  P=0.9939  R=0.9609
+  thr=0.675  F0.5=0.9804  single=0.9685  matched=0.9811  P=0.9944  R=0.9602
+  thr=0.700  F0.5=0.9804  single=0.9718  matched=0.9809  P=0.9947  R=0.9595
+  thr=0.725  F0.5=0.9804  single=0.9726  matched=0.9808  P=0.9950  R=0.9587
+  thr=0.750  F0.5=0.9804  single=0.9759  matched=0.9807  P=0.9954  R=0.9578
+  thr=0.775  F0.5=0.9804  single=0.9768  matched=0.9806  P=0.9958  R=0.9569
+  thr=0.800  F0.5=0.9801  single=0.9784  matched=0.9802  P=0.9962  R=0.9556
+  thr=0.825  F0.5=0.9797  single=0.9793  matched=0.9797  P=0.9965  R=0.9541
+  thr=0.850  F0.5=0.9796  single=0.9834  matched=0.9794  P=0.9969  R=0.9523
+  thr=0.875  F0.5=0.9791  single=0.9842  matched=0.9788  P=0.9972  R=0.9505
+  thr=0.900  F0.5=0.9784  single=0.9859  matched=0.9780  P=0.9977  R=0.9478
+  thr=0.925  F0.5=0.9775  single=0.9892  matched=0.9768  P=0.9982  R=0.9444
+  thr=0.950  F0.5=0.9752  single=0.9917  matched=0.9742  P=0.9986  R=0.9384
+[  4160s rss 3.9GB] BEST thr=0.675  macro F0.5=0.9804  (candidate-set ceiling 0.9942)
+[  4160s rss 3.9GB] saved model -> artifacts/er/model_v3
+
+==================================================================================
+FILE: v3_predict.log    (last modified 2026-09-27 02:32)
+==================================================================================
+[     1s rss 0.6GB] model best_iteration=1112  threshold=0.7
+[   184s rss 3.0GB] scored part 1/10: 13,389,874 pairs
+[   352s rss 3.0GB] scored part 2/10: 13,386,490 pairs
+[   521s rss 2.7GB] scored part 3/10: 13,387,599 pairs
+[   694s rss 2.6GB] scored part 4/10: 13,389,123 pairs
+[   861s rss 2.7GB] scored part 5/10: 13,391,967 pairs
+[  1028s rss 2.7GB] scored part 6/10: 13,398,978 pairs
+[  1197s rss 2.7GB] scored part 7/10: 13,398,394 pairs
+[  1382s rss 2.6GB] scored part 8/10: 13,401,957 pairs
+[  1549s rss 2.6GB] scored part 9/10: 13,405,787 pairs
+[  1713s rss 2.5GB] scored part 10/10: 12,997,191 pairs
+[  1745s rss 0.4GB] wrote matching_results.tsv
+[  1788s rss 1.9GB] wrote candidate_pairs.tsv
+[  1788s rss 1.8GB] S1 rows 1,732,544; with matches 1,636,652 (94.5%); matched ids 6,038,575
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (95892 empty, 1636652 non-empty).
+  candidate_pairs.tsv: 1732544 rows (9 empty, 1732535 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  2192s rss 0.0GB] validator exit code 0
+
+==================================================================================
+FILE: nn_train.log    (last modified 2026-09-27 02:45)
+==================================================================================
+[    10s rss 2.9GB] nn train pairs 5,295,586 (pos 292,186) | valid pairs 264,266
+[   132s rss 2.7GB]   nn epoch 0 step 2000/10344 loss 0.0499 118s
+[   252s rss 2.7GB]   nn epoch 0 step 4000/10344 loss 0.0300 237s
+[   331s rss 2.7GB]   nn epoch 0 train loss 0.0252 | valid logloss 0.0081  317s
+[   384s rss 2.7GB]   nn epoch 1 step 6000/10344 loss 0.0071 370s
+[   508s rss 2.7GB]   nn epoch 1 step 8000/10344 loss 0.0067 494s
+[   632s rss 2.7GB]   nn epoch 1 step 10000/10344 loss 0.0063 617s
+[   659s rss 2.7GB]   nn epoch 1 train loss 0.0062 | valid logloss 0.0066  644s
+[   659s rss 2.7GB] saved artifacts\er\nn\matcher.pt
+
+==================================================================================
+FILE: v4_train.log    (last modified 2026-09-27 03:11)
+==================================================================================
+[     9s rss 3.1GB] val S1 22,224 | val targets 1,283,072 | train targets 800,000 | es targets 100,000
+[   459s rss 2.5GB] features[train]: 10,524,120 pairs
+[   517s rss 2.8GB] features[es]: 1,315,825 pairs
+[   553s rss 4.4GB] train rows 10,524,120  es rows 1,315,825
+[0]	train-logloss:0.14244	train-aucpr:0.99257	es-logloss:0.14235	es-aucpr:0.99268
+[100]	train-logloss:0.00290	train-aucpr:0.99959	es-logloss:0.00305	es-aucpr:0.99949
+[200]	train-logloss:0.00246	train-aucpr:0.99970	es-logloss:0.00285	es-aucpr:0.99955
+[300]	train-logloss:0.00217	train-aucpr:0.99977	es-logloss:0.00280	es-aucpr:0.99957
+[400]	train-logloss:0.00193	train-aucpr:0.99983	es-logloss:0.00277	es-aucpr:0.99958
+[488]	train-logloss:0.00177	train-aucpr:0.99987	es-logloss:0.00277	es-aucpr:0.99958
+[   641s rss 1.4GB] trained on GPU: best iteration 428
+[   641s rss 1.4GB] top gain: nn_p=9724, score_gap=5201, rq=2909, num_absdiff=607, nm_g2_cin=582, rf_ad_tset=377, sib_same_num=360, core_g2_cin=356, sib_same_nums=289, num_missing=97, sib_same_num_frac=94, core_tok_jac=67, num_first_eq=58, qs=50, nm_g3_cin=48
+[  1536s rss 4.0GB] threshold curve:
+  thr=0.200  F0.5=0.9799  single=0.9394  matched=0.9822  P=0.9876  R=0.9726
+  thr=0.225  F0.5=0.9804  single=0.9402  matched=0.9827  P=0.9883  R=0.9725
+  thr=0.250  F0.5=0.9809  single=0.9419  matched=0.9831  P=0.9889  R=0.9722
+  thr=0.275  F0.5=0.9812  single=0.9444  matched=0.9833  P=0.9895  R=0.9718
+  thr=0.300  F0.5=0.9815  single=0.9477  matched=0.9834  P=0.9901  R=0.9715
+  thr=0.325  F0.5=0.9819  single=0.9527  matched=0.9836  P=0.9907  R=0.9711
+  thr=0.350  F0.5=0.9821  single=0.9552  matched=0.9836  P=0.9910  R=0.9708
+  thr=0.375  F0.5=0.9825  single=0.9577  matched=0.9839  P=0.9916  R=0.9705
+  thr=0.400  F0.5=0.9828  single=0.9593  matched=0.9841  P=0.9920  R=0.9701
+  thr=0.425  F0.5=0.9830  single=0.9602  matched=0.9843  P=0.9926  R=0.9697
+  thr=0.450  F0.5=0.9832  single=0.9610  matched=0.9845  P=0.9930  R=0.9692
+  thr=0.475  F0.5=0.9834  single=0.9627  matched=0.9846  P=0.9935  R=0.9688
+  thr=0.500  F0.5=0.9835  single=0.9660  matched=0.9846  P=0.9938  R=0.9683
+  thr=0.525  F0.5=0.9836  single=0.9660  matched=0.9846  P=0.9942  R=0.9679
+  thr=0.550  F0.5=0.9839  single=0.9693  matched=0.9847  P=0.9946  R=0.9675
+  thr=0.575  F0.5=0.9840  single=0.9726  matched=0.9847  P=0.9950  R=0.9669
+  thr=0.600  F0.5=0.9842  single=0.9726  matched=0.9849  P=0.9954  R=0.9664
+  thr=0.625  F0.5=0.9843  single=0.9726  matched=0.9849  P=0.9958  R=0.9658
+  thr=0.650  F0.5=0.9841  single=0.9726  matched=0.9848  P=0.9960  R=0.9651
+  thr=0.675  F0.5=0.9842  single=0.9743  matched=0.9848  P=0.9963  R=0.9646
+  thr=0.700  F0.5=0.9842  single=0.9751  matched=0.9847  P=0.9966  R=0.9640
+  thr=0.725  F0.5=0.9843  single=0.9759  matched=0.9848  P=0.9969  R=0.9635
+  thr=0.750  F0.5=0.9844  single=0.9776  matched=0.9848  P=0.9971  R=0.9628
+  thr=0.775  F0.5=0.9844  single=0.9793  matched=0.9847  P=0.9974  R=0.9622
+  thr=0.800  F0.5=0.9844  single=0.9826  matched=0.9845  P=0.9977  R=0.9616
+  thr=0.825  F0.5=0.9843  single=0.9851  matched=0.9842  P=0.9978  R=0.9607
+  thr=0.850  F0.5=0.9840  single=0.9867  matched=0.9838  P=0.9980  R=0.9597
+  thr=0.875  F0.5=0.9836  single=0.9884  matched=0.9833  P=0.9981  R=0.9584
+  thr=0.900  F0.5=0.9831  single=0.9900  matched=0.9827  P=0.9984  R=0.9567
+  thr=0.925  F0.5=0.9821  single=0.9900  matched=0.9817  P=0.9986  R=0.9542
+  thr=0.950  F0.5=0.9805  single=0.9917  matched=0.9799  P=0.9989  R=0.9498
+[  1536s rss 4.0GB] BEST thr=0.8  macro F0.5=0.9844  (candidate-set ceiling 0.9942)
+[  1536s rss 4.0GB] saved model -> artifacts/er/model_v4
+
+==================================================================================
+FILE: v4_predict.log    (last modified 2026-09-27 05:47)
+==================================================================================
+[     0s rss 0.6GB] model best_iteration=428  threshold=0.75
+[   720s rss 2.7GB] scored part 1/10: 13,389,874 pairs
+[  1703s rss 2.7GB] scored part 2/10: 13,386,490 pairs
+[  2610s rss 2.7GB] scored part 3/10: 13,387,599 pairs
+[  3462s rss 2.7GB] scored part 4/10: 13,389,123 pairs
+[  4322s rss 2.7GB] scored part 5/10: 13,391,967 pairs
+[  5252s rss 2.6GB] scored part 6/10: 13,398,978 pairs
+[  6185s rss 2.6GB] scored part 7/10: 13,398,394 pairs
+[  7096s rss 2.6GB] scored part 8/10: 13,401,957 pairs
+[  8014s rss 2.7GB] scored part 9/10: 13,405,787 pairs
+[  8910s rss 2.5GB] scored part 10/10: 12,997,191 pairs
+[  8966s rss 0.4GB] wrote matching_results.tsv
+[  9014s rss 1.9GB] wrote candidate_pairs.tsv
+[  9015s rss 1.8GB] S1 rows 1,732,544; with matches 1,633,442 (94.3%); matched ids 5,875,951
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (99102 empty, 1633442 non-empty).
+  candidate_pairs.tsv: 1732544 rows (9 empty, 1732535 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  9321s rss 0.0GB] validator exit code 0
+
+==================================================================================
+FILE: nn_v5.log    (last modified 2026-09-27 07:14)
+==================================================================================
+[    15s rss 3.2GB] nn train pairs 7,941,165 (pos 438,004) | valid pairs 265,037
+[   186s rss 3.6GB]   nn epoch 0 step 2000/31024 loss 0.0666 165s
+[   482s rss 3.6GB]   nn epoch 0 step 4000/31024 loss 0.0392 461s
+[   827s rss 3.4GB]   nn epoch 0 step 6000/31024 loss 0.0294 806s
+[  1147s rss 3.5GB]   nn epoch 0 train loss 0.0247 | valid logloss 0.0086  1126s
+[  1189s rss 3.5GB]   nn epoch 1 step 8000/31024 loss 0.0078 1168s
+[  1536s rss 3.5GB]   nn epoch 1 step 10000/31024 loss 0.0078 1515s
+[  1883s rss 3.5GB]   nn epoch 1 step 12000/31024 loss 0.0077 1862s
+[  2230s rss 3.5GB]   nn epoch 1 step 14000/31024 loss 0.0075 2209s
+[  2508s rss 3.5GB]   nn epoch 1 train loss 0.0074 | valid logloss 0.0070  2487s
+[  2593s rss 3.5GB]   nn epoch 2 step 16000/31024 loss 0.0061 2572s
+[  2940s rss 3.5GB]   nn epoch 2 step 18000/31024 loss 0.0059 2920s
+[  3288s rss 3.5GB]   nn epoch 2 step 20000/31024 loss 0.0057 3267s
+[  3636s rss 3.5GB]   nn epoch 2 step 22000/31024 loss 0.0056 3615s
+[  3872s rss 3.5GB]   nn epoch 2 train loss 0.0055 | valid logloss 0.0058  3851s
+[  3999s rss 3.5GB]   nn epoch 3 step 24000/31024 loss 0.0043 3978s
+[  4337s rss 3.5GB]   nn epoch 3 step 26000/31024 loss 0.0041 4316s
+[  4668s rss 3.5GB]   nn epoch 3 step 28000/31024 loss 0.0041 4647s
+[  5015s rss 3.5GB]   nn epoch 3 step 30000/31024 loss 0.0041 4994s
+[  5209s rss 3.5GB]   nn epoch 3 train loss 0.0041 | valid logloss 0.0055  5188s
+[  5209s rss 3.5GB] saved artifacts/er/nn/matcher_v5.pt
+
+==================================================================================
+FILE: v5_train.log    (last modified 2026-09-27 07:41)
+==================================================================================
+[     8s rss 3.0GB] val S1 22,224 | val targets 1,283,072 | train targets 800,000 | es targets 100,000
+[   657s rss 2.9GB] features[train]: 10,524,120 pairs
+[   716s rss 2.8GB] features[es]: 1,315,825 pairs
+[   748s rss 4.6GB] train rows 10,524,120  es rows 1,315,825
+[0]	train-logloss:0.14244	train-aucpr:0.99257	es-logloss:0.14235	es-aucpr:0.99268
+[100]	train-logloss:0.00271	train-aucpr:0.99964	es-logloss:0.00282	es-aucpr:0.99955
+[200]	train-logloss:0.00232	train-aucpr:0.99973	es-logloss:0.00264	es-aucpr:0.99961
+[300]	train-logloss:0.00206	train-aucpr:0.99980	es-logloss:0.00262	es-aucpr:0.99962
+[330]	train-logloss:0.00199	train-aucpr:0.99981	es-logloss:0.00261	es-aucpr:0.99962
+[   805s rss 1.6GB] trained on GPU: best iteration 270
+[   805s rss 1.6GB] top gain: nn_p=12838, score_gap=6520, rq=4074, num_absdiff=802, nm_g2_cin=798, rf_ad_tset=541, core_g2_cin=483, sib_same_num=414, sib_same_nums=347, num_missing=133, sib_same_num_frac=125, core_tok_jac=98, nm_g3_cin=69, s1_top_cnt=68, qs=65
+[  1617s rss 3.3GB] threshold curve:
+  thr=0.200  F0.5=0.9801  single=0.9353  matched=0.9827  P=0.9881  R=0.9736
+  thr=0.225  F0.5=0.9805  single=0.9369  matched=0.9830  P=0.9887  R=0.9732
+  thr=0.250  F0.5=0.9812  single=0.9427  matched=0.9834  P=0.9893  R=0.9730
+  thr=0.275  F0.5=0.9816  single=0.9444  matched=0.9838  P=0.9899  R=0.9728
+  thr=0.300  F0.5=0.9819  single=0.9461  matched=0.9840  P=0.9904  R=0.9724
+  thr=0.325  F0.5=0.9821  single=0.9469  matched=0.9842  P=0.9909  R=0.9719
+  thr=0.350  F0.5=0.9825  single=0.9502  matched=0.9844  P=0.9913  R=0.9716
+  thr=0.375  F0.5=0.9829  single=0.9544  matched=0.9846  P=0.9917  R=0.9713
+  thr=0.400  F0.5=0.9831  single=0.9552  matched=0.9847  P=0.9922  R=0.9708
+  thr=0.425  F0.5=0.9833  single=0.9577  matched=0.9848  P=0.9926  R=0.9704
+  thr=0.450  F0.5=0.9835  single=0.9593  matched=0.9849  P=0.9931  R=0.9700
+  thr=0.475  F0.5=0.9838  single=0.9627  matched=0.9850  P=0.9935  R=0.9695
+  thr=0.500  F0.5=0.9841  single=0.9643  matched=0.9852  P=0.9940  R=0.9691
+  thr=0.525  F0.5=0.9843  single=0.9668  matched=0.9853  P=0.9945  R=0.9685
+  thr=0.550  F0.5=0.9845  single=0.9685  matched=0.9854  P=0.9949  R=0.9682
+  thr=0.575  F0.5=0.9847  single=0.9701  matched=0.9855  P=0.9953  R=0.9678
+  thr=0.600  F0.5=0.9848  single=0.9718  matched=0.9856  P=0.9956  R=0.9671
+  thr=0.625  F0.5=0.9849  single=0.9759  matched=0.9854  P=0.9960  R=0.9664
+  thr=0.650  F0.5=0.9848  single=0.9768  matched=0.9853  P=0.9962  R=0.9655
+  thr=0.675  F0.5=0.9848  single=0.9776  matched=0.9852  P=0.9965  R=0.9649
+  thr=0.700  F0.5=0.9846  single=0.9784  matched=0.9850  P=0.9968  R=0.9642
+  thr=0.725  F0.5=0.9846  single=0.9793  matched=0.9849  P=0.9971  R=0.9637
+  thr=0.750  F0.5=0.9846  single=0.9817  matched=0.9848  P=0.9974  R=0.9630
+  thr=0.775  F0.5=0.9845  single=0.9826  matched=0.9846  P=0.9976  R=0.9624
+  thr=0.800  F0.5=0.9843  single=0.9834  matched=0.9844  P=0.9977  R=0.9617
+  thr=0.825  F0.5=0.9843  single=0.9851  matched=0.9842  P=0.9980  R=0.9607
+  thr=0.850  F0.5=0.9840  single=0.9867  matched=0.9838  P=0.9982  R=0.9596
+  thr=0.875  F0.5=0.9836  single=0.9892  matched=0.9833  P=0.9983  R=0.9583
+  thr=0.900  F0.5=0.9832  single=0.9917  matched=0.9827  P=0.9986  R=0.9565
+  thr=0.925  F0.5=0.9822  single=0.9925  matched=0.9816  P=0.9989  R=0.9538
+  thr=0.950  F0.5=0.9801  single=0.9942  matched=0.9793  P=0.9992  R=0.9487
+[  1617s rss 3.3GB] BEST thr=0.625  macro F0.5=0.9849  (candidate-set ceiling 0.9942)
+[  1617s rss 3.3GB] saved model -> artifacts/er/model_v5
+
+==================================================================================
+FILE: threshold_curve.json    (last modified 2026-09-27 07:41)
+==================================================================================
+[
+  {
+    "macro_f05": 0.9801220882869421,
+    "singleton_f05": 0.9352697095435685,
+    "matched_f05": 0.9826934340401066,
+    "pair_precision": 0.9881132397996082,
+    "pair_recall": 0.9736085199004975,
+    "n_s1": 22224,
+    "threshold": 0.2
+  },
+  {
+    "macro_f05": 0.9805135870565606,
+    "singleton_f05": 0.9369294605809129,
+    "matched_f05": 0.9830122250699368,
+    "pair_precision": 0.9887071087302737,
+    "pair_recall": 0.9732457504145937,
+    "n_s1": 22224,
+    "threshold": 0.225
+  },
+  {
+    "macro_f05": 0.9811866288621615,
+    "singleton_f05": 0.9427385892116182,
+    "matched_f05": 0.9833908197265653,
+    "pair_precision": 0.9892773401480622,
+    "pair_recall": 0.9729995854063018,
+    "n_s1": 22224,
+    "threshold": 0.25
+  },
+  {
+    "macro_f05": 0.981632720164136,
+    "singleton_f05": 0.9443983402489626,
+    "matched_f05": 0.9837673330285817,
+    "pair_precision": 0.9899008543402594,
+    "pair_recall": 0.972766376451078,
+    "n_s1": 22224,
+    "threshold": 0.275
+  },
+  {
+    "macro_f05": 0.9819380795910428,
+    "singleton_f05": 0.946058091286307,
+    "matched_f05": 0.9839950464261541,
+    "pair_precision": 0.9904191300675675,
+    "pair_recall": 0.9723517827529021,
+    "n_s1": 22224,
+    "threshold": 0.3
+  },
+  {
+    "macro_f05": 0.9821494626284675,
+    "singleton_f05": 0.9468879668049792,
+    "matched_f05": 0.9841709718566563,
+    "pair_precision": 0.9908593770639051,
+    "pair_recall": 0.9718853648424544,
+    "n_s1": 22224,
+    "threshold": 0.325
+  },
+  {
+    "macro_f05": 0.9825365712729739,
+    "singleton_f05": 0.950207468879668,
+    "matched_f05": 0.9843899690741982,
+    "pair_precision": 0.9913017039671104,
+    "pair_recall": 0.9715614635157546,
+    "n_s1": 22224,
+    "threshold": 0.35
+  },
+  {
+    "macro_f05": 0.9829302702041869,
+    "singleton_f05": 0.9543568464730291,
+    "matched_f05": 0.9845683583908771,
+    "pair_precision": 0.9917317105437227,
+    "pair_recall": 0.9712505182421227,
+    "n_s1": 22224,
+    "threshold": 0.375
+  },
+  {
+    "macro_f05": 0.9830600346897944,
+    "singleton_f05": 0.9551867219917013,
+    "matched_f05": 0.9846579861528139,
+    "pair_precision": 0.9921612245438415,
+    "pair_recall": 0.970797056384743,
+    "n_s1": 22224,
+    "threshold": 0.4
+  },
+  {
+    "macro_f05": 0.9833062349768283,
+    "singleton_f05": 0.9576763485477179,
+    "matched_f05": 0.9847755728685968,
+    "pair_precision": 0.9925657947046196,
+    "pair_recall": 0.9704213308457711,
+    "n_s1": 22224,
+    "threshold": 0.425
+  },
+  {
+    "macro_f05": 0.9835396523943574,
+    "singleton_f05": 0.9593360995850623,
+    "matched_f05": 0.9849272198873495,
+    "pair_precision": 0.9930627404165009,
+    "pair_recall": 0.9699808250414593,
+    "n_s1": 22224,
+    "threshold": 0.45
+  },
+  {
+    "macro_f05": 0.9837779426602562,
+    "singleton_f05": 0.9626556016597511,
+    "matched_f05": 0.9849888671050734,
+    "pair_precision": 0.9934945965322216,
+    "pair_recall": 0.9695273631840796,
+    "n_s1": 22224,
+    "threshold": 0.475
+  },
+  {
+    "macro_f05": 0.9840542432030399,
+    "singleton_f05": 0.9643153526970955,
+    "matched_f05": 0.9851858556993369,
+    "pair_precision": 0.993966857583288,
+    "pair_recall": 0.9690739013266998,
+    "n_s1": 22224,
+    "threshold": 0.5
+  },
+  {
+    "macro_f05": 0.9843013173516701,
+    "singleton_f05": 0.966804979253112,
+    "matched_f05": 0.9853043663744,
+    "pair_precision": 0.9945454061676822,
+    "pair_recall": 0.9685427031509121,
+    "n_s1": 22224,
+    "threshold": 0.525
+  },
+  {
+    "macro_f05": 0.9844538141115883,
+    "singleton_f05": 0.9684647302904564,
+    "matched_f05": 0.9853704536284285,
+    "pair_precision": 0.9949408882735116,
+    "pair_recall": 0.9682317578772802,
+    "n_s1": 22224,
+    "threshold": 0.55
+  },
+  {
+    "macro_f05": 0.984650953622919,
+    "singleton_f05": 0.9701244813278008,
+    "matched_f05": 0.9854837429618797,
+    "pair_precision": 0.995256622075361,
+    "pair_recall": 0.9677653399668324,
+    "n_s1": 22224,
+    "threshold": 0.575
+  },
+  {
+    "macro_f05": 0.9848153297702603,
+    "singleton_f05": 0.9717842323651452,
+    "matched_f05": 0.9855623906377212,
+    "pair_precision": 0.9956382553021208,
+    "pair_recall": 0.9670786691542289,
+    "n_s1": 22224,
+    "threshold": 0.6
+  },
+  {
+    "macro_f05": 0.9849017267143673,
+    "singleton_f05": 0.9759336099585062,
+    "matched_f05": 0.9854158606261049,
+    "pair_precision": 0.995954065963413,
+    "pair_recall": 0.9663531301824212,
+    "n_s1": 22224,
+    "threshold": 0.625
+  },
+  {
+    "macro_f05": 0.9848118477290547,
+    "singleton_f05": 0.9767634854771784,
+    "matched_f05": 0.9852732529583,
+    "pair_precision": 0.9962169315705749,
+    "pair_recall": 0.9655368988391376,
+    "n_s1": 22224,
+    "threshold": 0.65
+  },
+  {
+    "macro_f05": 0.984787766385585,
+    "singleton_f05": 0.9775933609958506,
+    "matched_f05": 0.9852002150508224,
+    "pair_precision": 0.9964943736034361,
+    "pair_recall": 0.964902052238806,
+    "n_s1": 22224,
+    "threshold": 0.675
+  },
+  {
+    "macro_f05": 0.9846210827392243,
+    "singleton_f05": 0.9784232365145228,
+    "matched_f05": 0.9849763995811658,
+    "pair_precision": 0.9968256519467995,
+    "pair_recall": 0.9642412935323383,
+    "n_s1": 22224,
+    "threshold": 0.7
+  },
+  {
+    "macro_f05": 0.9846015045405556,
+    "singleton_f05": 0.979253112033195,
+    "matched_f05": 0.9849081229796519,
+    "pair_precision": 0.9970909968362915,
+    "pair_recall": 0.9636582711442786,
+    "n_s1": 22224,
+    "threshold": 0.725
+  },
+  {
+    "macro_f05": 0.9846105221038667,
+    "singleton_f05": 0.9817427385892116,
+    "matched_f05": 0.9847749295036078,
+    "pair_precision": 0.9973699041893669,
+    "pair_recall": 0.962971600331675,
+    "n_s1": 22224,
+    "threshold": 0.75
+  },
+  {
+    "macro_f05": 0.9844566117660554,
+    "singleton_f05": 0.9825726141078838,
+    "matched_f05": 0.9845646196245685,
+    "pair_precision": 0.9975691646521623,
+    "pair_recall": 0.9623626658374793,
+    "n_s1": 22224,
+    "threshold": 0.775
+  },
+  {
+    "macro_f05": 0.9843100338098418,
+    "singleton_f05": 0.983402489626556,
+    "matched_f05": 0.9843620624858425,
+    "pair_precision": 0.9977014893273832,
+    "pair_recall": 0.9616630389718076,
+    "n_s1": 22224,
+    "threshold": 0.8
+  },
+  {
+    "macro_f05": 0.9842523933778736,
+    "singleton_f05": 0.9850622406639005,
+    "matched_f05": 0.9842059655754255,
+    "pair_precision": 0.9979678079242033,
+    "pair_recall": 0.9607302031509121,
+    "n_s1": 22224,
+    "threshold": 0.825
+  },
+  {
+    "macro_f05": 0.9839566191689251,
+    "singleton_f05": 0.9867219917012449,
+    "matched_f05": 0.9837980828969121,
+    "pair_precision": 0.9981805929919138,
+    "pair_recall": 0.9595900704809287,
+    "n_s1": 22224,
+    "threshold": 0.85
+  },
+  {
+    "macro_f05": 0.9836400257174062,
+    "singleton_f05": 0.9892116182572614,
+    "matched_f05": 0.983320611425074,
+    "pair_precision": 0.9983397448876291,
+    "pair_recall": 0.9582555970149254,
+    "n_s1": 22224,
+    "threshold": 0.875
+  },
+  {
+    "macro_f05": 0.9832138285201345,
+    "singleton_f05": 0.991701244813278,
+    "matched_f05": 0.9827272527252234,
+    "pair_precision": 0.9985526849722711,
+    "pair_recall": 0.9564547056384743,
+    "n_s1": 22224,
+    "threshold": 0.9
+  },
+  {
+    "macro_f05": 0.9821882456311304,
+    "singleton_f05": 0.9925311203319502,
+    "matched_f05": 0.981595298106772,
+    "pair_precision": 0.9988603060892217,
+    "pair_recall": 0.9538246268656716,
+    "n_s1": 22224,
+    "threshold": 0.925
+  },
+  {
+    "macro_f05": 0.9801169546558177,
+    "singleton_f05": 0.9941908713692946,
+    "matched_f05": 0.9793101099134542,
+    "pair_precision": 0.9991540109432778,
+    "pair_recall": 0.9487069859038143,
+    "n_s1": 22224,
+    "threshold": 0.95
+  }
+]
+
+==================================================================================
+FILE: v5_predict.log    (last modified 2026-09-27 10:19)
+==================================================================================
+[     0s rss 0.6GB] model best_iteration=270  threshold=0.7
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+[   889s rss 2.7GB] scored part 1/10: 13,389,874 pairs
+[  1732s rss 2.8GB] scored part 2/10: 13,386,490 pairs
+[  2619s rss 2.9GB] scored part 3/10: 13,387,599 pairs
+[  3510s rss 2.9GB] scored part 4/10: 13,389,123 pairs
+[  4400s rss 2.8GB] scored part 5/10: 13,391,967 pairs
+[  5296s rss 2.9GB] scored part 6/10: 13,398,978 pairs
+[  6205s rss 2.9GB] scored part 7/10: 13,398,394 pairs
+[  7114s rss 2.8GB] scored part 8/10: 13,401,957 pairs
+[  8021s rss 2.8GB] scored part 9/10: 13,405,787 pairs
+[  8909s rss 2.7GB] scored part 10/10: 12,997,191 pairs
+[  8956s rss 0.8GB] wrote matching_results.tsv
+[  8994s rss 2.6GB] wrote candidate_pairs.tsv
+[  8994s rss 1.5GB] S1 rows 1,732,544; with matches 1,634,280 (94.3%); matched ids 5,891,926
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  matching_results.tsv: 1732544 rows (98264 empty, 1634280 non-empty).
+  candidate_pairs.tsv: 1732544 rows (9 empty, 1732535 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[  9355s rss 0.0GB] validator exit code 0
+
+==================================================================================
+FILE: v6_block_train.log    (last modified 2026-09-27 10:50)
+==================================================================================
+index: 21,847,176 keys (cap=1000)  24s  rss 2.5GB
+  part 0: targets 0+1,000,000 -> 13,211,830 pairs  144s  rss 2.7GB
+  part 1: targets 1,000,000+1,000,000 -> 13,211,933 pairs  283s  rss 2.4GB
+  part 2: targets 2,000,000+1,000,000 -> 13,211,797 pairs  430s  rss 2.7GB
+  part 3: targets 3,000,000+1,000,000 -> 13,211,519 pairs  852s  rss 2.8GB
+  part 4: targets 4,000,000+1,000,000 -> 13,208,339 pairs  998s  rss 2.4GB
+  part 5: targets 5,000,000+1,000,000 -> 13,226,381 pairs  1141s  rss 2.4GB
+  part 6: targets 6,000,000+1,000,000 -> 13,225,341 pairs  1285s  rss 2.4GB
+  part 7: targets 7,000,000+1,000,000 -> 13,228,534 pairs  1459s  rss 2.6GB
+  part 8: targets 8,000,000+1,000,000 -> 13,225,076 pairs  1638s  rss 2.5GB
+  part 9: targets 9,000,000+1,000,000 -> 13,228,190 pairs  1781s  rss 2.5GB
+  part 10: targets 10,000,000+320,219 -> 4,235,323 pairs  1826s  rss 2.0GB
+DONE 136,424,263 candidate pairs for 10,320,219 targets -> artifacts\er\train_cands  1861s
+
+==================================================================================
+FILE: v6_block_test.log    (last modified 2026-09-27 11:00)
+==================================================================================
+index: 17,974,645 keys (cap=1000)  17s  rss 2.9GB
+  part 0: targets 0+1,000,000 -> 13,387,170 pairs  214s  rss 2.4GB
+  part 1: targets 1,000,000+1,000,000 -> 13,382,845 pairs  439s  rss 3.1GB
+  part 2: targets 2,000,000+1,000,000 -> 13,383,710 pairs  589s  rss 3.4GB
+
+==================================================================================
+FILE: fr_prepare.log    (last modified 2026-09-27 11:10)
+==================================================================================
+  test/s1: 1,732,544 rows -> artifacts\er\test_s1.parquet (92 MB)  6s
+  test/tg: 9,969,589 rows -> artifacts\er\test_tg.parquet (546 MB)  66s
+
+==================================================================================
+FILE: fr_block_test.log    (last modified 2026-09-27 11:10)
+==================================================================================
+index: 16,286,198 keys (cap=500)  15s  rss 2.7GB
