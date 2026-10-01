@@ -7,6 +7,38 @@ multi-representation normalization, multi-channel adaptive blocking, rare-token 
 pairwise feature engineering, LightGBM matching with F_0.5 threshold tuning, and memory-safe
 full-test inference with submission export.
 
+## ⭐ Current submission pipeline: GPU v2 (`src/er/`)
+
+**Correction branch:** see the [fresh retraining guide](README_er.md#corrected-pipeline-on-codexer-v2-quality-fixes). Character similarity and validation have changed; rebuild all artifacts in a new directory. Scores below describe historical runs, not the corrected code.
+
+The submission is produced by the **GPU v2 pipeline** in `src/er/` (branch `er-v2`).
+It replaces the prototype DuckDB/LightGBM path described further below, which is kept
+for reference only. Full details: [`README_er.md`](README_er.md) (how to run) and
+[`Documentation_template.md`](Documentation_template.md) (methodology and results).
+
+| | Status |
+|---|---|
+| Validation macro F0.5 (22,224 held-out Source-1 entities, singletons included) | **0.9844** (pair precision 99.7 %, recall 96.3 %) |
+| Candidate recall on all 7.64M training pairs | **98.1 %** (~13 candidates per record) |
+| Full test run (1.73M Source-1, 9.97M records) | done, `output/*.tsv` pass the official validator incl. `--check-ids` |
+| Final zip | `python scripts/er_package.py --team <TEAM>` → `dist/<TEAM>_submission.zip` |
+
+Key idea: every Source-2/3 record belongs to **at most one** Source-1 entity, so each record
+is assigned to its most likely Source-1 entity when an XGBoost (CUDA) model is confident
+enough. Blocking, re-ranking, features and training all run on the GPU (RTX 3060, 6 GB).
+
+```bash
+pip install -r requirements-er.txt
+python -m src.er.steps.prepare --split train && python -m src.er.steps.prepare --split test
+python -m src.er.steps.block --split train   && python -m src.er.steps.block --split test
+python -m src.er.steps.nn                      # char-level neural matcher (GPU)
+python -m src.er.steps.train --n-train 800000 --max-bin 128 --nn artifacts/er/nn/matcher.pt --model-dir artifacts/er/model_v4
+python -m src.er.steps.predict --model-dir artifacts/er/model_v4 --nn artifacts/er/nn/matcher.pt
+```
+
+Outputs (`output/`, `artifacts/`, `dist/`) are git-ignored; regenerate them with the
+commands above (~1 hour on a laptop GPU).
+
 ## Repository layout
 
 | Path | Purpose |
@@ -96,7 +128,12 @@ validator (`PASS`, exit 0).
 └── Documentation_template.md         # filled-in methodology write-up
 ```
 
-## Status and known gaps (read before the final submission)
+## Status and known gaps of the original pipeline (superseded)
+
+> These gaps apply to the original DuckDB/LightGBM pipeline only. They are resolved in the GPU
+> v2 pipeline above: the 5M+ scale crash is avoided with GPU blocking and streamed data, the
+> model is trained on real candidates from the full training set, the threshold is tuned on
+> held-out entities, and the full test submission is generated and validated.
 
 * **Ready:** normalization, blocking, features, metrics, the memory-safe inference engine, the
   `output/` format and the official validator round-trip are implemented and verified

@@ -21,3 +21,8 @@ catboost_info/
 
 # Submission outputs (regenerate with `python -m src.inference`)
 output/
+
+# Packaged submission zips
+dist/
+output_*/
+student_resource_sim/

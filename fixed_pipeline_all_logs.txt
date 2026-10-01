@@ -1,0 +1,305 @@
+Corrected ER v2 pipeline - full from-scratch run on local RTX 3060 (2026-09-27)
+Artifacts: artifacts/er_fixed   Output: output_fixed/
+
+=================== pipeline.out ===================
+GPU: NVIDIA GeForce RTX 3060 Laptop GPU
+[11:44:03] START 01_prepare_train
+[11:45:09] OK    01_prepare_train
+[11:45:09] START 02_prepare_test
+[11:46:01] OK    02_prepare_test
+[11:46:01] START 03_block_train
+[12:30:05] OK    03_block_train
+[12:30:05] START 04_block_test
+[13:15:51] OK    04_block_test
+[13:15:51] START 05_nn
+[13:28:23] OK    05_nn
+[13:28:24] START 06_train
+[14:03:16] OK    06_train
+[14:03:16] START 07_predict
+[15:42:55] FAIL  07_predict (see artifacts/er_fixed/logs/07_predict.log)
+[15:44:56] START 07_predict (rerun: memory-safe writer, cached scores)
+[15:54:16] OK    07_predict (rerun) exit 0
+
+=================== 00_unit_tests.log ===================
+test_blocking_manifest_rejects_changed_records (test_pipeline.BoundaryTests.test_blocking_manifest_rejects_changed_records) ... ok
+test_calibration_empty_candidates_and_all_singletons (test_pipeline.BoundaryTests.test_calibration_empty_candidates_and_all_singletons) ... ok
+test_content_identity_survives_moving_checkpoint (test_pipeline.BoundaryTests.test_content_identity_survives_moving_checkpoint) ... ok
+test_blocker_handles_empty_index (test_pipeline.PipelineTests.test_blocker_handles_empty_index) ... ok
+test_empty_candidates_have_feature_schema (test_pipeline.PipelineTests.test_empty_candidates_have_feature_schema) ... ok
+test_error_report_distinguishes_blocker_and_matcher (test_pipeline.PipelineTests.test_error_report_distinguishes_blocker_and_matcher) ... ok
+test_model_metadata_keeps_neural_feature (test_pipeline.PipelineTests.test_model_metadata_keeps_neural_feature) ... ok
+test_prediction_cache_changes_with_model_and_validator_failure_propagates (test_pipeline.PipelineTests.test_prediction_cache_changes_with_model_and_validator_failure_propagates) ... [     0s rss 0.9GB] model best_iteration=1  threshold=0.5
+[     0s rss 0.9GB] score cache: C:\Users\Admin\AppData\Local\Temp\tmpmi_sf1pt\test_scored\b3527f43315a07ce554f6ee47ab7b9d18fc40bf91e6bac09593ea8b17bad7fa3
+[     0s rss 0.9GB] scored part 1/1: 1 pairs
+[     0s rss 0.9GB] wrote matching_results.tsv
+[     0s rss 0.9GB] wrote candidate_pairs.tsv
+[     0s rss 0.9GB] S1 rows 1; with matches 1 (100.0%); matched ids 1
+[     0s rss 0.9GB] Official validation explicitly skipped
+[     0s rss 0.9GB] model best_iteration=1  threshold=0.5
+[     0s rss 0.9GB] score cache: C:\Users\Admin\AppData\Local\Temp\tmpmi_sf1pt\test_scored\b3527f43315a07ce554f6ee47ab7b9d18fc40bf91e6bac09593ea8b17bad7fa3
+[     0s rss 0.9GB] wrote matching_results.tsv
+[     0s rss 0.9GB] wrote candidate_pairs.tsv
+[     0s rss 0.9GB] S1 rows 1; with matches 1 (100.0%); matched ids 1
+[     0s rss 0.9GB] Official validation explicitly skipped
+[     0s rss 0.9GB] model best_iteration=1  threshold=0.5
+[     0s rss 0.9GB] score cache: C:\Users\Admin\AppData\Local\Temp\tmpmi_sf1pt\test_scored\c5b80a783e3b54b7eba9ffa27b9d6862eb7e33f9340b058d0c5d823f886b4551
+[     0s rss 0.9GB] scored part 1/1: 1 pairs
+[     0s rss 0.9GB] wrote matching_results.tsv
+[     0s rss 0.9GB] wrote candidate_pairs.tsv
+[     0s rss 0.9GB] S1 rows 1; with matches 1 (100.0%); matched ids 1
+[     0s rss 0.9GB] Official validation explicitly skipped
+[     0s rss 0.9GB] model best_iteration=1  threshold=0.5
+[     0s rss 0.9GB] score cache: C:\Users\Admin\AppData\Local\Temp\tmpmi_sf1pt\test_scored\c5b80a783e3b54b7eba9ffa27b9d6862eb7e33f9340b058d0c5d823f886b4551
+[     0s rss 0.9GB] wrote matching_results.tsv
+[     0s rss 0.9GB] wrote candidate_pairs.tsv
+[     0s rss 0.9GB] S1 rows 1; with matches 1 (100.0%); matched ids 1
+[     0s rss 0.9GB] validator exit code 2
+ok
+test_threshold_matches_exhaustive_search (test_pipeline.PipelineTests.test_threshold_matches_exhaustive_search) ... ok
+test_identity_changes_with_contents_not_threshold (test_regressions.CacheTests.test_identity_changes_with_contents_not_threshold) ... ok
+test_reuse_requires_matching_complete_manifest (test_regressions.CacheTests.test_reuse_requires_matching_complete_manifest) ... ok
+test_original_ids_preserved_and_empty_rows_written (test_regressions.ExportTests.test_original_ids_preserved_and_empty_rows_written) ... ok
+test_assignment_ties_deterministic (test_regressions.ModelTests.test_assignment_ties_deterministic) ... ok
+test_exact_threshold_beats_coarse_grid_and_ties_are_atomic (test_regressions.ModelTests.test_exact_threshold_beats_coarse_grid_and_ties_are_atomic) ... ok
+test_empty_idf_corpus (test_regressions.SimilarityTests.test_empty_idf_corpus) ... ok
+test_missing_neural_weights_fail_before_featurization (test_regressions.SimilarityTests.test_missing_neural_weights_fail_before_featurization) ... ok
+test_multiset_overlap_matches_counter (test_regressions.SimilarityTests.test_multiset_overlap_matches_counter) ... ok
+test_holdout_true_targets_excluded_even_when_blocking_missed (test_regressions.SplitTests.test_holdout_true_targets_excluded_even_when_blocking_missed) ... ok
+test_train_reports_independent_holdout_in_fresh_directory (test_training_smoke.TrainingSmoke.test_train_reports_independent_holdout_in_fresh_directory) ... [     0s rss 1.0GB] val S1 1 | val targets 2 | train targets 12 | es targets 4
+[     1s rss 1.0GB] features[train]: 24 pairs
+[     1s rss 1.0GB] features[es]: 8 pairs
+[     1s rss 1.1GB] train rows 24  es rows 8
+[0]	train-logloss:0.69315	train-aucpr:0.50000	es-logloss:0.69315	es-aucpr:0.50000
+[7]	train-logloss:0.69315	train-aucpr:0.50000	es-logloss:0.69315	es-aucpr:0.50000
+[     1s rss 1.1GB] trained: best iteration 0
+[     1s rss 1.1GB] top gain: 
+[     1s rss 1.1GB] threshold curve:
+  thr=1.000  F0.5=0.0000  single=nan  matched=0.0000  P=0.0000  R=0.0000
+  thr=0.500  F0.5=1.0000  single=nan  matched=1.0000  P=1.0000  R=1.0000
+[     1s rss 1.1GB] BEST thr=0.5  macro F0.5=1.0000  (candidate-set ceiling 1.0000)
+[     1s rss 1.1GB] INDEPENDENT HOLDOUT macro F0.5=1.000000; ceiling=1.000000
+[     1s rss 1.1GB] saved model -> C:\Users\Admin\AppData\Local\Temp\tmptaag_qoc\model
+[     0s rss 1.1GB] val S1 1 | val targets 2 | train targets 12 | es targets 4
+[     0s rss 1.1GB] train rows 24  es rows 8
+[0]	train-logloss:0.69315	train-aucpr:0.50000	es-logloss:0.69315	es-aucpr:0.50000
+[7]	train-logloss:0.69315	train-aucpr:0.50000	es-logloss:0.69315	es-aucpr:0.50000
+[     0s rss 1.1GB] trained: best iteration 0
+[     0s rss 1.1GB] top gain: 
+[     0s rss 1.1GB] threshold curve:
+  thr=1.000  F0.5=0.0000  single=nan  matched=0.0000  P=0.0000  R=0.0000
+  thr=0.500  F0.5=1.0000  single=nan  matched=1.0000  P=1.0000  R=1.0000
+[     0s rss 1.1GB] BEST thr=0.5  macro F0.5=1.0000  (candidate-set ceiling 1.0000)
+[     1s rss 1.1GB] INDEPENDENT HOLDOUT macro F0.5=1.000000; ceiling=1.000000
+[     1s rss 1.1GB] saved model -> C:\Users\Admin\AppData\Local\Temp\tmptaag_qoc\model
+ok
+----------------------------------------------------------------------
+Ran 19 tests in 20.809s
+OK
+
+=================== 01_prepare_train.log ===================
+learning transliteration maps ...
+  translit[trainfold]: 1,347 name tokens, 14 address tokens
+  translit[all]: 1,347 name tokens, 14 address tokens
+  train/s1: 2,206,821 rows -> artifacts\er_fixed\train_s1.parquet (130 MB)  22s
+  train/tg: 10,320,219 rows -> artifacts\er_fixed\train_tg.parquet (620 MB)  63s
+
+=================== 02_prepare_test.log ===================
+  test/s1: 1,732,544 rows -> artifacts\er_fixed\test_s1.parquet (102 MB)  7s
+  test/tg: 9,969,589 rows -> artifacts\er_fixed\test_tg.parquet (602 MB)  49s
+
+=================== 03_block_train.log ===================
+index: 19,426,794 keys (cap=500)  13s  rss 3.4GB
+  part 0: targets 0+1,000,000 -> 13,206,742 pairs  167s  rss 2.6GB
+  part 1: targets 1,000,000+1,000,000 -> 13,205,901 pairs  468s  rss 2.5GB
+  part 2: targets 2,000,000+1,000,000 -> 13,205,619 pairs  850s  rss 2.7GB
+  part 3: targets 3,000,000+1,000,000 -> 13,204,708 pairs  1315s  rss 2.4GB
+  part 4: targets 4,000,000+1,000,000 -> 13,203,101 pairs  1553s  rss 2.2GB
+  part 5: targets 5,000,000+1,000,000 -> 13,209,322 pairs  1684s  rss 2.2GB
+  part 6: targets 6,000,000+1,000,000 -> 13,205,195 pairs  1832s  rss 2.0GB
+  part 7: targets 7,000,000+1,000,000 -> 13,212,284 pairs  2007s  rss 1.7GB
+  part 8: targets 8,000,000+1,000,000 -> 13,205,778 pairs  2280s  rss 1.6GB
+  part 9: targets 9,000,000+1,000,000 -> 13,210,605 pairs  2555s  rss 2.0GB
+  part 10: targets 10,000,000+320,219 -> 4,229,336 pairs  2609s  rss 1.4GB
+DONE 136,298,591 candidate pairs for 10,320,219 targets -> artifacts\er_fixed\train_cands  2636s
+
+=================== 04_block_test.log ===================
+index: 16,286,198 keys (cap=500)  11s  rss 2.3GB
+  part 0: targets 0+1,000,000 -> 13,339,395 pairs  208s  rss 2.9GB
+  part 1: targets 1,000,000+1,000,000 -> 13,335,380 pairs  448s  rss 2.4GB
+  part 2: targets 2,000,000+1,000,000 -> 13,336,784 pairs  736s  rss 2.6GB
+  part 3: targets 3,000,000+1,000,000 -> 13,338,054 pairs  1005s  rss 2.7GB
+  part 4: targets 4,000,000+1,000,000 -> 13,341,809 pairs  1302s  rss 2.5GB
+  part 5: targets 5,000,000+1,000,000 -> 13,349,389 pairs  1589s  rss 2.4GB
+  part 6: targets 6,000,000+1,000,000 -> 13,348,985 pairs  1890s  rss 2.1GB
+  part 7: targets 7,000,000+1,000,000 -> 13,352,721 pairs  2224s  rss 1.9GB
+  part 8: targets 8,000,000+1,000,000 -> 13,355,779 pairs  2483s  rss 2.0GB
+  part 9: targets 9,000,000+969,589 -> 12,948,857 pairs  2704s  rss 2.1GB
+DONE 133,047,153 candidate pairs for 9,969,589 targets -> artifacts\er_fixed\test_cands  2735s
+
+=================== 05_nn.log ===================
+[    13s rss 3.9GB] nn train pairs 5,275,608 (pos 292,227) | valid pairs 264,081
+[   141s rss 3.3GB]   nn epoch 0 step 2000/10304 loss 0.0503 122s
+[   265s rss 3.3GB]   nn epoch 0 step 4000/10304 loss 0.0303 246s
+[   345s rss 3.3GB]   nn epoch 0 train loss 0.0255 | valid logloss 0.0080  326s
+[   398s rss 3.3GB]   nn epoch 1 step 6000/10304 loss 0.0073 379s
+[   525s rss 3.3GB]   nn epoch 1 step 8000/10304 loss 0.0070 506s
+[   683s rss 3.3GB]   nn epoch 1 step 10000/10304 loss 0.0066 664s
+[   742s rss 3.3GB]   nn epoch 1 train loss 0.0065 | valid logloss 0.0063  723s
+[   742s rss 3.3GB] saved artifacts/er_fixed/nn/matcher.pt
+
+=================== 06_train.log ===================
+[     8s rss 3.2GB] val S1 22,224 | val targets 2,406,061 | train targets 800,000 | es targets 100,000
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+[   622s rss 2.7GB] features[train]: 10,480,154 pairs
+[   666s rss 2.7GB] features[es]: 1,310,300 pairs
+[   695s rss 4.5GB] train rows 10,480,154  es rows 1,310,300
+[0]	train-logloss:0.14316	train-aucpr:0.99205	es-logloss:0.14300	es-aucpr:0.99190
+[100]	train-logloss:0.00292	train-aucpr:0.99958	es-logloss:0.00333	es-aucpr:0.99943
+[200]	train-logloss:0.00250	train-aucpr:0.99969	es-logloss:0.00313	es-aucpr:0.99949
+[300]	train-logloss:0.00220	train-aucpr:0.99977	es-logloss:0.00307	es-aucpr:0.99951
+[400]	train-logloss:0.00197	train-aucpr:0.99983	es-logloss:0.00305	es-aucpr:0.99951
+[500]	train-logloss:0.00177	train-aucpr:0.99987	es-logloss:0.00304	es-aucpr:0.99952
+[600]	train-logloss:0.00159	train-aucpr:0.99990	es-logloss:0.00305	es-aucpr:0.99952
+[649]	train-logloss:0.00152	train-aucpr:0.99992	es-logloss:0.00305	es-aucpr:0.99952
+[   793s rss 1.6GB] trained: best iteration 589
+[   793s rss 1.6GB] top gain: nn_p=8138, score_gap=4297, rq=2193, num_absdiff=519, sib_same_num=466, nm_g2_cin=421, rf_ad_tset=271, core_g2_cin=222, sib_same_nums=134, core_tok_jac=90, sib_same_num_frac=75, num_missing=60, n_indic=41, n_domain=38, nm_g3_cin=36
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+[  2056s rss 5.3GB] threshold curve:
+  thr=1.000  F0.5=0.0542  single=1.0000  matched=0.0000  P=0.0000  R=0.0000
+  thr=1.000  F0.5=0.7853  single=1.0000  matched=0.7730  P=1.0000  R=0.5974
+  thr=1.000  F0.5=0.8446  single=1.0000  matched=0.8357  P=1.0000  R=0.6802
+  thr=1.000  F0.5=0.8697  single=0.9992  matched=0.8623  P=1.0000  R=0.7202
+  thr=1.000  F0.5=0.8847  single=0.9992  matched=0.8782  P=0.9999  R=0.7462
+  thr=1.000  F0.5=0.8954  single=0.9992  matched=0.8894  P=0.9999  R=0.7641
+  thr=1.000  F0.5=0.9032  single=0.9992  matched=0.8977  P=0.9999  R=0.7782
+  thr=1.000  F0.5=0.9096  single=0.9992  matched=0.9044  P=0.9999  R=0.7900
+  thr=1.000  F0.5=0.9147  single=0.9983  matched=0.9099  P=0.9999  R=0.8004
+  thr=0.999  F0.5=0.9194  single=0.9983  matched=0.9149  P=0.9999  R=0.8097
+  thr=0.999  F0.5=0.9238  single=0.9983  matched=0.9195  P=0.9999  R=0.8181
+  thr=0.999  F0.5=0.9276  single=0.9983  matched=0.9235  P=0.9998  R=0.8261
+  thr=0.999  F0.5=0.9312  single=0.9983  matched=0.9273  P=0.9998  R=0.8337
+  thr=0.999  F0.5=0.9344  single=0.9983  matched=0.9307  P=0.9998  R=0.8408
+  thr=0.999  F0.5=0.9376  single=0.9983  matched=0.9342  P=0.9998  R=0.8476
+  thr=0.999  F0.5=0.9404  single=0.9983  matched=0.9371  P=0.9998  R=0.8542
+  thr=0.998  F0.5=0.9432  single=0.9975  matched=0.9401  P=0.9998  R=0.8606
+  thr=0.998  F0.5=0.9459  single=0.9975  matched=0.9429  P=0.9998  R=0.8671
+  thr=0.998  F0.5=0.9488  single=0.9975  matched=0.9460  P=0.9998  R=0.8733
+  thr=0.997  F0.5=0.9515  single=0.9975  matched=0.9488  P=0.9998  R=0.8796
+  thr=0.997  F0.5=0.9539  single=0.9975  matched=0.9514  P=0.9998  R=0.8855
+  thr=0.996  F0.5=0.9568  single=0.9975  matched=0.9544  P=0.9998  R=0.8915
+  thr=0.996  F0.5=0.9591  single=0.9975  matched=0.9569  P=0.9997  R=0.8974
+  thr=0.995  F0.5=0.9616  single=0.9975  matched=0.9596  P=0.9997  R=0.9032
+  thr=0.994  F0.5=0.9642  single=0.9975  matched=0.9623  P=0.9996  R=0.9091
+  thr=0.993  F0.5=0.9668  single=0.9967  matched=0.9651  P=0.9996  R=0.9150
+  thr=0.991  F0.5=0.9691  single=0.9967  matched=0.9675  P=0.9995  R=0.9207
+  thr=0.988  F0.5=0.9713  single=0.9967  matched=0.9698  P=0.9995  R=0.9264
+  thr=0.985  F0.5=0.9740  single=0.9967  matched=0.9727  P=0.9994  R=0.9321
+  thr=0.980  F0.5=0.9765  single=0.9967  matched=0.9754  P=0.9994  R=0.9378
+  thr=0.972  F0.5=0.9787  single=0.9967  matched=0.9777  P=0.9993  R=0.9434
+  thr=0.958  F0.5=0.9810  single=0.9959  matched=0.9801  P=0.9991  R=0.9490
+  thr=0.932  F0.5=0.9826  single=0.9909  matched=0.9821  P=0.9987  R=0.9543
+  thr=0.870  F0.5=0.9836  single=0.9834  matched=0.9836  P=0.9979  R=0.9592
+  thr=0.727  F0.5=0.9840  single=0.9734  matched=0.9846  P=0.9966  R=0.9637
+  thr=0.697  F0.5=0.9841  single=0.9734  matched=0.9848  P=0.9963  R=0.9645
+  thr=0.562  F0.5=0.9837  single=0.9627  matched=0.9849  P=0.9946  R=0.9675
+  thr=0.390  F0.5=0.9824  single=0.9527  matched=0.9841  P=0.9917  R=0.9704
+  thr=0.222  F0.5=0.9797  single=0.9344  matched=0.9823  P=0.9881  R=0.9726
+  thr=0.084  F0.5=0.9763  single=0.9137  matched=0.9798  P=0.9836  R=0.9738
+  thr=0.033  F0.5=0.9718  single=0.8880  matched=0.9766  P=0.9782  R=0.9744
+  thr=0.015  F0.5=0.9666  single=0.8539  matched=0.9731  P=0.9727  R=0.9747
+  thr=0.008  F0.5=0.9616  single=0.8282  matched=0.9693  P=0.9672  R=0.9748
+  thr=0.004  F0.5=0.9563  single=0.7959  matched=0.9655  P=0.9617  R=0.9748
+  thr=0.003  F0.5=0.9515  single=0.7710  matched=0.9618  P=0.9564  R=0.9748
+  thr=0.002  F0.5=0.9463  single=0.7402  matched=0.9581  P=0.9512  R=0.9749
+  thr=0.001  F0.5=0.9415  single=0.7195  matched=0.9542  P=0.9459  R=0.9749
+  thr=0.001  F0.5=0.9363  single=0.6880  matched=0.9505  P=0.9408  R=0.9749
+  thr=0.001  F0.5=0.9312  single=0.6598  matched=0.9468  P=0.9356  R=0.9749
+  thr=0.000  F0.5=0.9267  single=0.6415  matched=0.9430  P=0.9305  R=0.9749
+  thr=0.000  F0.5=0.9217  single=0.6149  matched=0.9393  P=0.9255  R=0.9749
+  thr=0.000  F0.5=0.9164  single=0.5851  matched=0.9354  P=0.9205  R=0.9749
+  thr=0.000  F0.5=0.9114  single=0.5560  matched=0.9318  P=0.9156  R=0.9749
+  thr=0.000  F0.5=0.9065  single=0.5320  matched=0.9280  P=0.9108  R=0.9749
+  thr=0.000  F0.5=0.9016  single=0.5029  matched=0.9244  P=0.9060  R=0.9749
+  thr=0.000  F0.5=0.8970  single=0.4838  matched=0.9207  P=0.9012  R=0.9749
+  thr=0.000  F0.5=0.8922  single=0.4598  matched=0.9170  P=0.8965  R=0.9749
+  thr=0.000  F0.5=0.8876  single=0.4407  matched=0.9132  P=0.8918  R=0.9749
+  thr=0.000  F0.5=0.8829  single=0.4191  matched=0.9095  P=0.8872  R=0.9749
+  thr=0.000  F0.5=0.8784  single=0.4025  matched=0.9057  P=0.8826  R=0.9749
+  thr=0.000  F0.5=0.8741  single=0.3909  matched=0.9018  P=0.8781  R=0.9749
+  thr=0.000  F0.5=0.8696  single=0.3701  matched=0.8982  P=0.8736  R=0.9749
+  thr=0.000  F0.5=0.8654  single=0.3552  matched=0.8946  P=0.8692  R=0.9749
+  thr=0.000  F0.5=0.8606  single=0.3353  matched=0.8908  P=0.8648  R=0.9749
+  thr=0.000  F0.5=0.8564  single=0.3220  matched=0.8871  P=0.8605  R=0.9749
+  thr=0.000  F0.5=0.8520  single=0.3037  matched=0.8835  P=0.8562  R=0.9749
+  thr=0.000  F0.5=0.8478  single=0.2938  matched=0.8796  P=0.8519  R=0.9749
+  thr=0.000  F0.5=0.8435  single=0.2780  matched=0.8759  P=0.8477  R=0.9749
+  thr=0.000  F0.5=0.8397  single=0.2705  matched=0.8724  P=0.8435  R=0.9749
+  thr=0.000  F0.5=0.8357  single=0.2581  matched=0.8688  P=0.8394  R=0.9749
+  thr=0.000  F0.5=0.8315  single=0.2473  matched=0.8650  P=0.8353  R=0.9749
+  thr=0.000  F0.5=0.8272  single=0.2332  matched=0.8613  P=0.8312  R=0.9749
+  thr=0.000  F0.5=0.8233  single=0.2232  matched=0.8577  P=0.8272  R=0.9749
+  thr=0.000  F0.5=0.8193  single=0.2108  matched=0.8542  P=0.8232  R=0.9749
+  thr=0.000  F0.5=0.8153  single=0.1992  matched=0.8506  P=0.8192  R=0.9749
+  thr=0.000  F0.5=0.8116  single=0.1917  matched=0.8471  P=0.8153  R=0.9749
+  thr=0.000  F0.5=0.8077  single=0.1793  matched=0.8437  P=0.8114  R=0.9749
+  thr=0.000  F0.5=0.8038  single=0.1693  matched=0.8402  P=0.8076  R=0.9749
+  thr=0.000  F0.5=0.8001  single=0.1618  matched=0.8367  P=0.8038  R=0.9749
+  thr=0.000  F0.5=0.7964  single=0.1560  matched=0.8331  P=0.8001  R=0.9749
+  thr=0.000  F0.5=0.7927  single=0.1477  matched=0.8296  P=0.7964  R=0.9749
+  thr=0.000  F0.5=0.7889  single=0.1361  matched=0.8263  P=0.7926  R=0.9749
+  thr=0.000  F0.5=0.7852  single=0.1278  matched=0.8228  P=0.7890  R=0.9749
+  thr=0.000  F0.5=0.7819  single=0.1245  matched=0.8196  P=0.7854  R=0.9749
+  thr=0.000  F0.5=0.7782  single=0.1145  matched=0.8162  P=0.7818  R=0.9749
+  thr=0.000  F0.5=0.7748  single=0.1095  matched=0.8129  P=0.7782  R=0.9749
+  thr=0.000  F0.5=0.7715  single=0.1029  matched=0.8099  P=0.7747  R=0.9749
+  thr=0.000  F0.5=0.7682  single=0.0954  matched=0.8067  P=0.7712  R=0.9749
+  thr=0.000  F0.5=0.7645  single=0.0830  matched=0.8036  P=0.7677  R=0.9749
+  thr=0.000  F0.5=0.7616  single=0.0805  matched=0.8006  P=0.7643  R=0.9749
+  thr=0.000  F0.5=0.7584  single=0.0755  matched=0.7976  P=0.7609  R=0.9749
+  thr=0.000  F0.5=0.7554  single=0.0730  matched=0.7945  P=0.7575  R=0.9749
+  thr=0.000  F0.5=0.7523  single=0.0680  matched=0.7915  P=0.7542  R=0.9749
+  thr=0.000  F0.5=0.7491  single=0.0606  matched=0.7886  P=0.7509  R=0.9749
+  thr=0.000  F0.5=0.7462  single=0.0564  matched=0.7857  P=0.7476  R=0.9749
+  thr=0.000  F0.5=0.7431  single=0.0515  matched=0.7828  P=0.7443  R=0.9749
+  thr=0.000  F0.5=0.7403  single=0.0498  matched=0.7799  P=0.7411  R=0.9749
+  thr=0.000  F0.5=0.7373  single=0.0456  matched=0.7770  P=0.7379  R=0.9749
+  thr=0.000  F0.5=0.7343  single=0.0390  matched=0.7741  P=0.7348  R=0.9749
+  thr=0.000  F0.5=0.7316  single=0.0382  matched=0.7714  P=0.7316  R=0.9749
+  thr=0.000  F0.5=0.7288  single=0.0373  matched=0.7684  P=0.7285  R=0.9749
+  thr=0.000  F0.5=0.7257  single=0.0340  matched=0.7653  P=0.7254  R=0.9749
+[  2056s rss 5.3GB] BEST thr=0.6969072818756104  macro F0.5=0.9841  (candidate-set ceiling 0.9942)
+[  2061s rss 6.0GB] INDEPENDENT HOLDOUT macro F0.5=0.984529; ceiling=0.993799
+[  2071s rss 6.6GB] saved model -> artifacts/er_fixed/model_fixed
+
+=================== 07_predict.log ===================
+[     3s rss 0.6GB] model best_iteration=589  threshold=0.6969072818756104
+[     9s rss 2.4GB] score cache: artifacts\er_fixed\test_scored\fb0314fd37250f49b04df5409582a68b36ccd441d5b9a95eaf1f0b67f9eaabb8
+[   434s rss 4.1GB] scored part 1/10: 13,339,395 pairs
+  [ram-guard] < 2.0 GB free - pausing until memory frees up
+[  1148s rss 2.7GB] scored part 2/10: 13,335,380 pairs
+[  1650s rss 2.9GB] scored part 3/10: 13,336,784 pairs
+[  2173s rss 3.4GB] scored part 4/10: 13,338,054 pairs
+[  2667s rss 3.0GB] scored part 5/10: 13,341,809 pairs
+[  3350s rss 2.8GB] scored part 6/10: 13,349,389 pairs
+[  4181s rss 2.6GB] scored part 7/10: 13,348,985 pairs
+[  5030s rss 2.7GB] scored part 8/10: 13,352,721 pairs
+[  5498s rss 2.8GB] scored part 9/10: 13,355,779 pairs
+[  5919s rss 2.6GB] scored part 10/10: 12,948,857 pairs
+memory allocation of 6291456 bytes failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+=================== 07_predict_rerun.log ===================
+[     3s rss 0.6GB] model best_iteration=589  threshold=0.6969072818756104
+[     7s rss 2.4GB] score cache: artifacts\er_fixed\test_scored\b0ce54191a07c8e1921bea1f1fcaf490568fe022378f50d5f6cad75dc5cf58c4
+[    28s rss 2.0GB] wrote matching_results.tsv
+[    81s rss 2.1GB] wrote candidate_pairs.tsv
+[    82s rss 0.5GB] S1 rows 1,732,544; with matches 1,635,170 (94.4%); matched ids 5,908,553
+ML Challenge 2026 — submission validator
+  test dir: student_resource\dataset\test
+  required S1 entities: 1732544
+  valid S2/S3 match IDs: 9969589
+  matching_results.tsv: 1732544 rows (97374 empty, 1635170 non-empty).
+  candidate_pairs.tsv: 1732544 rows (8 empty, 1732536 non-empty).
+PASS — no blocking issues found. Safe to submit.
+[   552s rss 0.0GB] validator exit code 0
